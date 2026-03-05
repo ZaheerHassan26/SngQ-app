@@ -1,0 +1,610 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00F7DB8C18E0478EA9C21EAB /* Urbanist-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A3AAB301FE9C46A8A78A61E6 /* Urbanist-Bold.ttf */; };
+		138BEF86394841CC98AE87B5 /* Urbanist-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F237DA91CCDB4EF4A21803A1 /* Urbanist-ThinItalic.ttf */; };
+		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		14F19FB1AF7E4C58872D82BA /* Urbanist-ExtraLightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EFADDCE56C7B478BB428302C /* Urbanist-ExtraLightItalic.ttf */; };
+		4CF7778795DB401FA40314B5 /* Urbanist-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6601CCABF78B46CA823EBA3F /* Urbanist-Thin.ttf */; };
+		590192E59E264119A2479616 /* Urbanist-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6BB107FEA62B4A49B5248C0B /* Urbanist-SemiBoldItalic.ttf */; };
+		5B4AF1C1AD3F4978ACECF402 /* Urbanist-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 750F3B055D2A461AAC8CE221 /* Urbanist-Medium.ttf */; };
+		68839A1752174BC29AF4DB9A /* Urbanist-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D373BD922714866891FB344 /* Urbanist-LightItalic.ttf */; };
+		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
+		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		8A668F4D1D46488E89D2A1D4 /* Urbanist-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E26FE8597B8C4777940F2862 /* Urbanist-MediumItalic.ttf */; };
+		98546ECF33D84D5CA5B910C5 /* Urbanist-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AD8FEE5EB3B34922ABFA0D98 /* Urbanist-Regular.ttf */; };
+		9CBD795C720F25A21BA18457 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		A09C206F5CE1EA4EAE43F2DF /* libPods-ChemistryXo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 586B9334CAAA0769AEF91550 /* libPods-ChemistryXo.a */; };
+		A4A7A1728AC343448ADED0A0 /* Urbanist-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7CAFE88252BF403EA40DD522 /* Urbanist-Italic.ttf */; };
+		B584F1D3237147C6B416ACF5 /* Urbanist-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4DC70AB19EEA48E5A7317859 /* Urbanist-SemiBold.ttf */; };
+		B6BAED2701E24B04A46DAFF8 /* Urbanist-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD70E38EE34741F39568D9A8 /* Urbanist-BoldItalic.ttf */; };
+		BD99295CEB3E4CBCACE03228 /* Urbanist-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3F1B8E133F254E8F8127EBB0 /* Urbanist-ExtraBold.ttf */; };
+		C74899DAD26F46239ABB4010 /* Urbanist-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BC621BD25E5349B99CEDBA33 /* Urbanist-ExtraLight.ttf */; };
+		D87C76501AB644058DB3A68B /* Urbanist-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DE80A22C7AB846A299A457E7 /* Urbanist-Light.ttf */; };
+		DEA3723612384997A36355E7 /* Urbanist-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5DFEB917521B48168DC2C605 /* Urbanist-BlackItalic.ttf */; };
+		E37887F924A34BF7B6B566DF /* Urbanist-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC2E0BA184D94FB1B0D514A4 /* Urbanist-Black.ttf */; };
+		E3E5017B67A144189D569E95 /* Urbanist-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3D69C88DFD91432C8548C627 /* Urbanist-ExtraBoldItalic.ttf */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		13B07F961A680F5B00A75B9A /* ChemistryXo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChemistryXo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ChemistryXo/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ChemistryXo/Info.plist; sourceTree = "<group>"; };
+		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = ChemistryXo/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		2E1677102F6ADFE7CD178A17 /* Pods-ChemistryXo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChemistryXo.debug.xcconfig"; path = "Target Support Files/Pods-ChemistryXo/Pods-ChemistryXo.debug.xcconfig"; sourceTree = "<group>"; };
+		3D69C88DFD91432C8548C627 /* Urbanist-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-ExtraBoldItalic.ttf"; path = "../src/Assets/fonts/Urbanist-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
+		3F1B8E133F254E8F8127EBB0 /* Urbanist-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-ExtraBold.ttf"; path = "../src/Assets/fonts/Urbanist-ExtraBold.ttf"; sourceTree = "<group>"; };
+		4DC70AB19EEA48E5A7317859 /* Urbanist-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-SemiBold.ttf"; path = "../src/Assets/fonts/Urbanist-SemiBold.ttf"; sourceTree = "<group>"; };
+		586B9334CAAA0769AEF91550 /* libPods-ChemistryXo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ChemistryXo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D373BD922714866891FB344 /* Urbanist-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-LightItalic.ttf"; path = "../src/Assets/fonts/Urbanist-LightItalic.ttf"; sourceTree = "<group>"; };
+		5DFEB917521B48168DC2C605 /* Urbanist-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-BlackItalic.ttf"; path = "../src/Assets/fonts/Urbanist-BlackItalic.ttf"; sourceTree = "<group>"; };
+		65AF29782F573CED007CE983 /* ChemistryXo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ChemistryXo.entitlements; path = ChemistryXo/ChemistryXo.entitlements; sourceTree = "<group>"; };
+		6601CCABF78B46CA823EBA3F /* Urbanist-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-Thin.ttf"; path = "../src/Assets/fonts/Urbanist-Thin.ttf"; sourceTree = "<group>"; };
+		6BB107FEA62B4A49B5248C0B /* Urbanist-SemiBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-SemiBoldItalic.ttf"; path = "../src/Assets/fonts/Urbanist-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
+		750F3B055D2A461AAC8CE221 /* Urbanist-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-Medium.ttf"; path = "../src/Assets/fonts/Urbanist-Medium.ttf"; sourceTree = "<group>"; };
+		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ChemistryXo/AppDelegate.swift; sourceTree = "<group>"; };
+		7CAFE88252BF403EA40DD522 /* Urbanist-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-Italic.ttf"; path = "../src/Assets/fonts/Urbanist-Italic.ttf"; sourceTree = "<group>"; };
+		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ChemistryXo/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		947CE042BD25D651601FCBBD /* Pods-ChemistryXo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChemistryXo.release.xcconfig"; path = "Target Support Files/Pods-ChemistryXo/Pods-ChemistryXo.release.xcconfig"; sourceTree = "<group>"; };
+		A3AAB301FE9C46A8A78A61E6 /* Urbanist-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-Bold.ttf"; path = "../src/Assets/fonts/Urbanist-Bold.ttf"; sourceTree = "<group>"; };
+		AD8FEE5EB3B34922ABFA0D98 /* Urbanist-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-Regular.ttf"; path = "../src/Assets/fonts/Urbanist-Regular.ttf"; sourceTree = "<group>"; };
+		BC621BD25E5349B99CEDBA33 /* Urbanist-ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-ExtraLight.ttf"; path = "../src/Assets/fonts/Urbanist-ExtraLight.ttf"; sourceTree = "<group>"; };
+		DD70E38EE34741F39568D9A8 /* Urbanist-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-BoldItalic.ttf"; path = "../src/Assets/fonts/Urbanist-BoldItalic.ttf"; sourceTree = "<group>"; };
+		DE80A22C7AB846A299A457E7 /* Urbanist-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-Light.ttf"; path = "../src/Assets/fonts/Urbanist-Light.ttf"; sourceTree = "<group>"; };
+		E26FE8597B8C4777940F2862 /* Urbanist-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-MediumItalic.ttf"; path = "../src/Assets/fonts/Urbanist-MediumItalic.ttf"; sourceTree = "<group>"; };
+		EA94BADE2E5D8F3A007CAA37 /* AntDesign.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = AntDesign.ttf; sourceTree = "<group>"; };
+		EA94BADF2E5D8F3A007CAA37 /* Entypo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Entypo.ttf; sourceTree = "<group>"; };
+		EA94BAE02E5D8F3A007CAA37 /* EvilIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = EvilIcons.ttf; sourceTree = "<group>"; };
+		EA94BAE12E5D8F3A007CAA37 /* Feather.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Feather.ttf; sourceTree = "<group>"; };
+		EA94BAE22E5D8F3A007CAA37 /* FontAwesome.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome.ttf; sourceTree = "<group>"; };
+		EA94BAE32E5D8F3A007CAA37 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome5_Brands.ttf; sourceTree = "<group>"; };
+		EA94BAE42E5D8F3A007CAA37 /* FontAwesome5_Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome5_Regular.ttf; sourceTree = "<group>"; };
+		EA94BAE52E5D8F3A007CAA37 /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome5_Solid.ttf; sourceTree = "<group>"; };
+		EA94BAE62E5D8F3A007CAA37 /* Fontisto.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fontisto.ttf; sourceTree = "<group>"; };
+		EA94BAE72E5D8F3A007CAA37 /* Foundation.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Foundation.ttf; sourceTree = "<group>"; };
+		EA94BAE82E5D8F3A007CAA37 /* Ionicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Ionicons.ttf; sourceTree = "<group>"; };
+		EA94BAE92E5D8F3A007CAA37 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialCommunityIcons.ttf; sourceTree = "<group>"; };
+		EA94BAEA2E5D8F3A007CAA37 /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
+		EA94BAEB2E5D8F3A007CAA37 /* Octicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Octicons.ttf; sourceTree = "<group>"; };
+		EA94BAEC2E5D8F3A007CAA37 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SimpleLineIcons.ttf; sourceTree = "<group>"; };
+		EA94BAED2E5D8F3A007CAA37 /* Zocial.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Zocial.ttf; sourceTree = "<group>"; };
+		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		EFADDCE56C7B478BB428302C /* Urbanist-ExtraLightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-ExtraLightItalic.ttf"; path = "../src/Assets/fonts/Urbanist-ExtraLightItalic.ttf"; sourceTree = "<group>"; };
+		F237DA91CCDB4EF4A21803A1 /* Urbanist-ThinItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-ThinItalic.ttf"; path = "../src/Assets/fonts/Urbanist-ThinItalic.ttf"; sourceTree = "<group>"; };
+		FC2E0BA184D94FB1B0D514A4 /* Urbanist-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Urbanist-Black.ttf"; path = "../src/Assets/fonts/Urbanist-Black.ttf"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A09C206F5CE1EA4EAE43F2DF /* libPods-ChemistryXo.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		13B07FAE1A68108700A75B9A /* ChemistryXo */ = {
+			isa = PBXGroup;
+			children = (
+				65AF29782F573CED007CE983 /* ChemistryXo.entitlements */,
+				EA94BAEE2E5D8F3A007CAA37 /* fonts */,
+				13B07FB51A68108700A75B9A /* Images.xcassets */,
+				761780EC2CA45674006654EE /* AppDelegate.swift */,
+				13B07FB61A68108700A75B9A /* Info.plist */,
+				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
+				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+			);
+			name = ChemistryXo;
+			sourceTree = "<group>";
+		};
+		13EBAE163D404E9FB3FD4B39 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A3AAB301FE9C46A8A78A61E6 /* Urbanist-Bold.ttf */,
+				AD8FEE5EB3B34922ABFA0D98 /* Urbanist-Regular.ttf */,
+				5D373BD922714866891FB344 /* Urbanist-LightItalic.ttf */,
+				EFADDCE56C7B478BB428302C /* Urbanist-ExtraLightItalic.ttf */,
+				3D69C88DFD91432C8548C627 /* Urbanist-ExtraBoldItalic.ttf */,
+				6601CCABF78B46CA823EBA3F /* Urbanist-Thin.ttf */,
+				E26FE8597B8C4777940F2862 /* Urbanist-MediumItalic.ttf */,
+				4DC70AB19EEA48E5A7317859 /* Urbanist-SemiBold.ttf */,
+				7CAFE88252BF403EA40DD522 /* Urbanist-Italic.ttf */,
+				FC2E0BA184D94FB1B0D514A4 /* Urbanist-Black.ttf */,
+				5DFEB917521B48168DC2C605 /* Urbanist-BlackItalic.ttf */,
+				DE80A22C7AB846A299A457E7 /* Urbanist-Light.ttf */,
+				6BB107FEA62B4A49B5248C0B /* Urbanist-SemiBoldItalic.ttf */,
+				DD70E38EE34741F39568D9A8 /* Urbanist-BoldItalic.ttf */,
+				3F1B8E133F254E8F8127EBB0 /* Urbanist-ExtraBold.ttf */,
+				750F3B055D2A461AAC8CE221 /* Urbanist-Medium.ttf */,
+				BC621BD25E5349B99CEDBA33 /* Urbanist-ExtraLight.ttf */,
+				F237DA91CCDB4EF4A21803A1 /* Urbanist-ThinItalic.ttf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
+				586B9334CAAA0769AEF91550 /* libPods-ChemistryXo.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
+		83CBB9F61A601CBA00E9B192 = {
+			isa = PBXGroup;
+			children = (
+				13B07FAE1A68108700A75B9A /* ChemistryXo */,
+				832341AE1AAA6A7D00B99B32 /* Libraries */,
+				83CBBA001A601CBA00E9B192 /* Products */,
+				2D16E6871FA4F8E400B85C8A /* Frameworks */,
+				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				13EBAE163D404E9FB3FD4B39 /* Resources */,
+			);
+			indentWidth = 2;
+			sourceTree = "<group>";
+			tabWidth = 2;
+			usesTabs = 0;
+		};
+		83CBBA001A601CBA00E9B192 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				13B07F961A680F5B00A75B9A /* ChemistryXo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				2E1677102F6ADFE7CD178A17 /* Pods-ChemistryXo.debug.xcconfig */,
+				947CE042BD25D651601FCBBD /* Pods-ChemistryXo.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		EA94BAEE2E5D8F3A007CAA37 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				EA94BADE2E5D8F3A007CAA37 /* AntDesign.ttf */,
+				EA94BADF2E5D8F3A007CAA37 /* Entypo.ttf */,
+				EA94BAE02E5D8F3A007CAA37 /* EvilIcons.ttf */,
+				EA94BAE12E5D8F3A007CAA37 /* Feather.ttf */,
+				EA94BAE22E5D8F3A007CAA37 /* FontAwesome.ttf */,
+				EA94BAE32E5D8F3A007CAA37 /* FontAwesome5_Brands.ttf */,
+				EA94BAE42E5D8F3A007CAA37 /* FontAwesome5_Regular.ttf */,
+				EA94BAE52E5D8F3A007CAA37 /* FontAwesome5_Solid.ttf */,
+				EA94BAE62E5D8F3A007CAA37 /* Fontisto.ttf */,
+				EA94BAE72E5D8F3A007CAA37 /* Foundation.ttf */,
+				EA94BAE82E5D8F3A007CAA37 /* Ionicons.ttf */,
+				EA94BAE92E5D8F3A007CAA37 /* MaterialCommunityIcons.ttf */,
+				EA94BAEA2E5D8F3A007CAA37 /* MaterialIcons.ttf */,
+				EA94BAEB2E5D8F3A007CAA37 /* Octicons.ttf */,
+				EA94BAEC2E5D8F3A007CAA37 /* SimpleLineIcons.ttf */,
+				EA94BAED2E5D8F3A007CAA37 /* Zocial.ttf */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		13B07F861A680F5B00A75B9A /* ChemistryXo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ChemistryXo" */;
+			buildPhases = (
+				8FB20FB7639657CA303CAB28 /* [CP] Check Pods Manifest.lock */,
+				13B07F871A680F5B00A75B9A /* Sources */,
+				13B07F8C1A680F5B00A75B9A /* Frameworks */,
+				13B07F8E1A680F5B00A75B9A /* Resources */,
+				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
+				24C7D7DEE42675DF4312CD40 /* [CP] Embed Pods Frameworks */,
+				61B480CD24ABD1F520965737 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ChemistryXo;
+			productName = ChemistryXo;
+			productReference = 13B07F961A680F5B00A75B9A /* ChemistryXo.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		83CBB9F71A601CBA00E9B192 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1210;
+				TargetAttributes = {
+					13B07F861A680F5B00A75B9A = {
+						LastSwiftMigration = 1120;
+					};
+				};
+			};
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "ChemistryXo" */;
+			compatibilityVersion = "Xcode 12.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 83CBB9F61A601CBA00E9B192;
+			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				13B07F861A680F5B00A75B9A /* ChemistryXo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		13B07F8E1A680F5B00A75B9A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				9CBD795C720F25A21BA18457 /* PrivacyInfo.xcprivacy in Resources */,
+				00F7DB8C18E0478EA9C21EAB /* Urbanist-Bold.ttf in Resources */,
+				98546ECF33D84D5CA5B910C5 /* Urbanist-Regular.ttf in Resources */,
+				68839A1752174BC29AF4DB9A /* Urbanist-LightItalic.ttf in Resources */,
+				14F19FB1AF7E4C58872D82BA /* Urbanist-ExtraLightItalic.ttf in Resources */,
+				E3E5017B67A144189D569E95 /* Urbanist-ExtraBoldItalic.ttf in Resources */,
+				4CF7778795DB401FA40314B5 /* Urbanist-Thin.ttf in Resources */,
+				8A668F4D1D46488E89D2A1D4 /* Urbanist-MediumItalic.ttf in Resources */,
+				B584F1D3237147C6B416ACF5 /* Urbanist-SemiBold.ttf in Resources */,
+				A4A7A1728AC343448ADED0A0 /* Urbanist-Italic.ttf in Resources */,
+				E37887F924A34BF7B6B566DF /* Urbanist-Black.ttf in Resources */,
+				DEA3723612384997A36355E7 /* Urbanist-BlackItalic.ttf in Resources */,
+				D87C76501AB644058DB3A68B /* Urbanist-Light.ttf in Resources */,
+				590192E59E264119A2479616 /* Urbanist-SemiBoldItalic.ttf in Resources */,
+				B6BAED2701E24B04A46DAFF8 /* Urbanist-BoldItalic.ttf in Resources */,
+				BD99295CEB3E4CBCACE03228 /* Urbanist-ExtraBold.ttf in Resources */,
+				5B4AF1C1AD3F4978ACECF402 /* Urbanist-Medium.ttf in Resources */,
+				C74899DAD26F46239ABB4010 /* Urbanist-ExtraLight.ttf in Resources */,
+				138BEF86394841CC98AE87B5 /* Urbanist-ThinItalic.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/.xcode.env",
+			);
+			name = "Bundle React Native code and images";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+		};
+		24C7D7DEE42675DF4312CD40 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ChemistryXo/Pods-ChemistryXo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ChemistryXo/Pods-ChemistryXo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ChemistryXo/Pods-ChemistryXo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		61B480CD24ABD1F520965737 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ChemistryXo/Pods-ChemistryXo-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ChemistryXo/Pods-ChemistryXo-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ChemistryXo/Pods-ChemistryXo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8FB20FB7639657CA303CAB28 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ChemistryXo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		13B07F871A680F5B00A75B9A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		13B07F941A680F5B00A75B9A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2E1677102F6ADFE7CD178A17 /* Pods-ChemistryXo.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ChemistryXo/ChemistryXo.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 8;
+				DEVELOPMENT_TEAM = 882JJHMC3J;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = ChemistryXo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chemistryxo.app;
+				PRODUCT_NAME = ChemistryXo;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		13B07F951A680F5B00A75B9A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 947CE042BD25D651601FCBBD /* Pods-ChemistryXo.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ChemistryXo/ChemistryXo.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 8;
+				DEVELOPMENT_TEAM = 882JJHMC3J;
+				INFOPLIST_FILE = ChemistryXo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chemistryxo.app;
+				PRODUCT_NAME = ChemistryXo;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		83CBBA201A601CBA00E9B192 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					/usr/lib/swift,
+					"$(inherited)",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SDKROOT)/usr/lib/swift\"",
+					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
+					"\"$(inherited)\"",
+				);
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DFOLLY_NO_CONFIG",
+					"-DFOLLY_MOBILE=1",
+					"-DFOLLY_USE_LIBCPP=1",
+					"-DFOLLY_CFG_NO_COROUTINES=1",
+					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
+				);
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				USE_HERMES = true;
+			};
+			name = Debug;
+		};
+		83CBBA211A601CBA00E9B192 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					/usr/lib/swift,
+					"$(inherited)",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SDKROOT)/usr/lib/swift\"",
+					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
+					"\"$(inherited)\"",
+				);
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DFOLLY_NO_CONFIG",
+					"-DFOLLY_MOBILE=1",
+					"-DFOLLY_USE_LIBCPP=1",
+					"-DFOLLY_CFG_NO_COROUTINES=1",
+					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
+				);
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
+				SDKROOT = iphoneos;
+				USE_HERMES = true;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ChemistryXo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				13B07F941A680F5B00A75B9A /* Debug */,
+				13B07F951A680F5B00A75B9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "ChemistryXo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				83CBBA201A601CBA00E9B192 /* Debug */,
+				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
+}

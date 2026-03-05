@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Required for Android: without this, many real devices fail API calls with
+  ERR_NETWORK / Network Error while iOS works. Explicitly trust system + user CAs.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+    <!-- Explicit domain config for API host (helps on some OEMs) -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">saige.mytechmaestro.com</domain>
+        <domain includeSubdomains="true">mytechmaestro.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>

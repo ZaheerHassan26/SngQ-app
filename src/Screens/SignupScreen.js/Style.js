@@ -1,0 +1,72 @@
+import {StyleSheet} from 'react-native';
+
+export const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+    justifyContent: 'center',
+  },
+  Image: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    marginBottom: 40,
+  },
+
+  TextInput: {
+    width: '80%',
+    backgroundColor: '#EA93D8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    height: 55,
+    borderRadius: 30,
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+    marginVertical: 10,
+  },
+  miniTextInputContainer: {
+    width: '80%',
+    height: 80,
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  textInputContainer2: {
+    width: '80%',
+    justifyContent: 'space-between',
+    alignContent: 'center',
+    flexDirection: 'row',
+    marginVertical: 8,
+  },
+  TextInput2: {
+    width: '47%',
+    backgroundColor: '#EA93D8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    height: 50,
+    borderRadius: 30,
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  btn: {
+    height: 60,
+    width: '80%',
+    backgroundColor: 'white',
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 30,
+    marginTop: 20,
+    marginBottom: 10,
+  },
+});

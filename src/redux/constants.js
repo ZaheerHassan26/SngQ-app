@@ -1,0 +1,17 @@
+export const GET_QUESTIONS = 'GET_QUESTIONS';
+export const TEXT_VALUE = 'TEXT_VALUE';
+export const USER_VALUE = 'USER_VALUE';
+export const UPDATED_ID = 'UPDATED_ID';
+export const REMEMBER_ME = 'REMEMBER_ME';
+export const GET_MESSAGES = 'GET_MESSAGES';
+export const VIEW_SHORT = 'VIEW_SHORT';
+export const SHOW_DATA = 'SHOW_DATA';
+export const SOCIAL_TYPE = 'SOCIAL_TYPE';
+export const IS_VIP = 'IS_VIP';
+export const TOKEN = 'TOKEN';
+export const BOTTOM_COLOR = 'BOTTOM_COLOR';
+export const FULL_NAME = 'FULL_NAME';
+export const PRO_DETAIL = 'PRO_DETAIL';
+export const REQUEST_INVITE_DATA = 'REQUEST_INVITE_DATA';
+export const POST_APPROVAL_DATA = 'POST_APPROVAL_DATA';
+export const RESET_ONBOARDING_AND_POST_APPROVAL = 'RESET_ONBOARDING_AND_POST_APPROVAL';
