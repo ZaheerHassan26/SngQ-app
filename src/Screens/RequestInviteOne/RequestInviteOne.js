@@ -13,6 +13,7 @@ import { useDispatch } from 'react-redux';
 import AuthHeader from '../../components/AuthHeader/AuthHeader';
 import { googleSignInApi, appleSignInApi, showApiErrorToast } from '../../utils/Apis';
 import { signInWithGoogle, signInWithApple, isAppleSignInAvailable } from '../../utils/socialAuth';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RequestInviteOne = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -29,7 +30,9 @@ const RequestInviteOne = ({ navigation }) => {
         translucent
         backgroundColor="transparent"
       />
+      <SafeAreaView style={styles.safeArea}>
       <AuthHeader title="Request Invite" onBack={() => navigation.goBack()} />
+      </SafeAreaView>
 
       {/* Logo */}
       <View style={styles.logoContainer}>
@@ -130,35 +133,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     paddingHorizontal: 15,
-    paddingTop: 50,
     paddingBottom: 100,
   },
-  topContainer: {
-    flexDirection: 'row',
-    // justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: Platform.OS === 'android' ? 20 : 60,
-  },
-  backButton: {
-    // backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 50,
-    padding: 8,
-  },
-  requestInvite: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 25,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  requestText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-    fontFamily: 'Urbanist-Medium',
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: 12,
   },
   logoContainer: {
     alignItems: 'center',
-    // marginTop: 40,
   },
   logo: {
     width: 160,

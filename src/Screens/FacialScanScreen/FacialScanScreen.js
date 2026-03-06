@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import { Camera } from 'react-native-camera-kit';
-import { getRequestInviteStep } from '../../config/requestInviteSteps';
+import OnboardingProgressHeader from '../../components/OnboardingProgressHeader/OnboardingProgressHeader';
 import { setRequestInviteData } from '../../redux/actions';
 
 const { width, height } = Dimensions.get('window');
@@ -26,9 +26,6 @@ const FacialScanScreen = ({ navigation }) => {
     state => state.userReducer?.requestInviteData ?? {},
   );
   const [hasPermission, setHasPermission] = useState(false);
-
-  const { stepIndex, totalSteps } = getRequestInviteStep('FacialScanScreen');
-  const progressWidth = `${(stepIndex / totalSteps) * 100}%`;
 
   useEffect(() => {
     const requestPermission = async () => {
@@ -56,24 +53,10 @@ const FacialScanScreen = ({ navigation }) => {
       blurRadius={6}
     >
       <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
-        <View style={styles.topRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Image
-              source={require('../../Assets/IMAGES/Icon.png')}
-              style={{ width: 40, height: 40, resizeMode: 'contain' }}
-            />
-          </TouchableOpacity>
-
-          <View style={styles.progressBarWrapper}>
-            <View style={styles.progressBar}>
-              <View
-                style={[styles.progressFill, { width: progressWidth }]}
-              />
-            </View>
-            <Text style={styles.progressText}>{`${stepIndex}/${totalSteps}`}</Text>
-          </View>
-        </View>
+        <OnboardingProgressHeader
+          screenName="FacialScanScreen"
+          onBack={() => navigation.goBack()}
+        />
 
         {/* Camera View */}
         <View style={styles.contentContainer}>
@@ -158,34 +141,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     justifyContent: 'space-between',
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  progressBarWrapper: {
-    flex: 1,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginLeft: 20,
-  },
-  progressBar: {
-    flex: 1,
-    height: 4,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    borderRadius: 4,
-    marginRight: 10,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#5DAD92',
-    borderRadius: 4,
-  },
-  progressText: {
-    color: 'white',
-    fontSize: 14,
   },
   contentContainer: {
     flex: 1,

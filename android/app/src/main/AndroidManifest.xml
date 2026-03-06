@@ -16,6 +16,9 @@
       android:networkSecurityConfig="@xml/network_security_config"
       android:usesCleartextTraffic="true"
       android:supportsRtl="true">
+        <meta-data
+        android:name="com.google.android.geo.API_KEY"
+        android:value="AIzaSyAmFwtZS7oHJoDd6wDsQTkpIYe3RkB42tw"/>
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"

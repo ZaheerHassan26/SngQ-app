@@ -10,15 +10,20 @@ import {
   Platform,
   ActivityIndicator,
   Keyboard,
+  KeyboardAvoidingView,
+  ScrollView,
+  Pressable,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useDispatch } from 'react-redux';
 import { verifyOtpApi, resendOtpApi } from '../../utils/Apis';
 import AuthHeader from '../../components/AuthHeader/AuthHeader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
 const OtpVerificationScreen = ({ navigation, route }) => {
+  const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
   const params = route?.params || {};
   const phone = params.phone || '';
@@ -102,6 +107,7 @@ const OtpVerificationScreen = ({ navigation, route }) => {
       setError('Please enter 6-digit OTP.');
       return;
     }
+    console.log(countryCodeForApi,'otpString=======>', otpString);
     verifyOtpApi(
       countryCodeForApi,
       phone,
@@ -152,80 +158,95 @@ const OtpVerificationScreen = ({ navigation, route }) => {
         backgroundColor="transparent"
       />
 
-      <View style={styles.container}>
-        <AuthHeader title="Verify OTP" onBack={() => navigation.goBack()} />
-
-        {/* OTP Text */}
-        <View style={styles.textContainer}>
-
-          <Text style={styles.title}>Enter the OTP</Text>
-          <Text style={styles.subtitle}>
-            Please enter the OTP sent on your Email
-          </Text>
-        </View>
-
-        {/* OTP Inputs */}
-        <View style={styles.otpContainer}>
-          {otp.map((digit, index) => (
-            <TextInput
-              key={index}
-              ref={el => (inputRefs.current[index] = el)}
-              style={styles.otpInput}
-              keyboardType="numeric"
-              maxLength={1}
-              value={digit}
-              onChangeText={text => handleChange(text, index)}
-            />
-          ))}
-        </View>
-
-        {error ? (
-          <Text style={styles.validationError}>{error}</Text>
-        ) : null}
-        {successMsg ? (
-          <Text style={{ color: '#5DAD92', marginBottom: 8, fontSize: 14 ,marginHorizontal:10}}>
-            {successMsg}
-          </Text>
-        ) : null}
-
-        {/* Submit Button */}
-        <View style={{ gap: 20, marginTop: '100%' }}>
-          <TouchableOpacity
-            onPress={handleVerify}
-            disabled={loader || otpString.length !== 6}
+      <Pressable style={styles.flex1} onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          style={styles.flex1}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        >
+          <ScrollView
+            style={styles.flex1}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            <LinearGradient
-              colors={['#5DAD92', '#2F5749']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.signInBtn}
-            >
-              {loader ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.signInText}>Submit</Text>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleResend}
-            activeOpacity={0.8}
-            disabled={resendLoading || resendCooldown > 0}
-            style={styles.sendAgainTouch}
-          >
+            <View style={[styles.container, { paddingTop: insets.top || (Platform.OS === 'ios' ? 60 : 15) }]}>
+              <AuthHeader title="Verify OTP" onBack={() => navigation.goBack()} />
 
-            {resendLoading ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <Text style={styles.sendAgainText}>
-                {resendCooldown > 0
-                  ? `Send Again (${resendCooldown}s)`
-                  : 'Send Again'}
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      </View>
+              {/* OTP Text */}
+              <View style={styles.textContainer}>
+                <Text style={styles.title}>Enter the OTP</Text>
+                <Text style={styles.subtitle}>
+                  Please enter the OTP sent on your Email
+                </Text>
+              </View>
+
+              {/* OTP Inputs */}
+              <View style={styles.otpContainer}>
+                {otp.map((digit, index) => (
+                  <TextInput
+                    key={index}
+                    ref={el => (inputRefs.current[index] = el)}
+                    style={styles.otpInput}
+                    keyboardType="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChangeText={text => handleChange(text, index)}
+                  />
+                ))}
+              </View>
+
+              {error ? (
+                <Text style={styles.validationError}>{error}</Text>
+              ) : null}
+              {successMsg ? (
+                <Text style={styles.successMsg}>{successMsg}</Text>
+              ) : null}
+
+              <View style={styles.spacer} />
+
+              {/* Submit Button */}
+              <View style={[styles.buttonFooter, { paddingBottom: insets.bottom + 16 }]}>
+                <View style={styles.buttonFooterGap}>
+                  <TouchableOpacity
+                    onPress={handleVerify}
+                    disabled={loader || otpString.length !== 6}
+                  >
+                    <LinearGradient
+                      colors={['#5DAD92', '#2F5749']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.signInBtn}
+                    >
+                      {loader ? (
+                        <ActivityIndicator color="#fff" />
+                      ) : (
+                        <Text style={styles.signInText}>Submit</Text>
+                      )}
+                    </LinearGradient>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleResend}
+                    activeOpacity={0.8}
+                    disabled={resendLoading || resendCooldown > 0}
+                    style={styles.sendAgainTouch}
+                  >
+                    {resendLoading ? (
+                      <ActivityIndicator color="#fff" size="small" />
+                    ) : (
+                      <Text style={styles.sendAgainText}>
+                        {resendCooldown > 0
+                          ? `Send Again (${resendCooldown}s)`
+                          : 'Send Again'}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Pressable>
     </ImageBackground>
   );
 };
@@ -233,15 +254,36 @@ const OtpVerificationScreen = ({ navigation, route }) => {
 export default OtpVerificationScreen;
 
 const styles = StyleSheet.create({
+  flex1: {
+    flex: 1,
+  },
   bgImage: {
     flex: 1,
     width: '100%',
     height: '100%',
   },
+  scrollContent: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
-    paddingHorizontal: 15,
-    paddingTop: 50,
+    paddingHorizontal: 12,
+  },
+  spacer: {
+    flex: 1,
+    minHeight: 24,
+  },
+  buttonFooter: {
+    width: '100%',
+  },
+  buttonFooterGap: {
+    gap: 20,
+  },
+  successMsg: {
+    color: '#5DAD92',
+    marginBottom: 8,
+    fontSize: 14,
+    marginHorizontal: 10,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -374,8 +416,8 @@ const styles = StyleSheet.create({
   },
   validationError: {
     color: '#FF0000',
-    marginBottom: 8,
     fontSize: 14,
+    marginTop: 8,
     fontFamily: 'Urbanist-Medium',
   },
 });

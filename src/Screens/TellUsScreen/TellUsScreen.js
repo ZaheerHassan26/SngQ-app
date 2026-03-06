@@ -41,7 +41,7 @@ const TellUsScreen = ({ navigation }) => {
         family_plan: familyPlan,
       }),
     );
-    navigation.replace('LifestyleScreen');
+    navigation.navigate('LifestyleScreen');
   };
 
   // Fixed renderOption function

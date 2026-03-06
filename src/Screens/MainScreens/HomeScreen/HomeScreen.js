@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,106 +9,41 @@ import {
   StyleSheet,
   StatusBar,
   Dimensions,
+  ActivityIndicator,
+  Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { getCompatibleProfilesApi } from '../../../utils/Apis';
+import { API_BASE_URL } from '../../../config/api';
 
 const { width } = Dimensions.get('window');
 
-// 👇 Replace this with your real image imports
-const profiles = [
-  {
-    id: '1',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g1.png'),
-  },
-  {
-    id: '2',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g2.png'),
-  },
-  {
-    id: '3',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g3.png'),
-  },
-  {
-    id: '4',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g4.png'),
-  },
-  {
-    id: '5',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g5.png'),
-  },
-  {
-    id: '6',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g1.png'),
-  },
-  {
-    id: '7',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g2.png'),
-  },
-  {
-    id: '8',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g3.png'),
-  },
-  {
-    id: '9',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g4.png'),
-  },
-  {
-    id: '10',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g5.png'),
-  },
-  {
-    id: '11',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g1.png'),
-  },
-  {
-    id: '12',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g2.png'),
-  },
-  {
-    id: '13',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g3.png'),
-  },
-  {
-    id: '14',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g4.png'),
-  },
-  {
-    id: '15',
-    name: 'Adaline',
-    age: '21',
-    image: require('../../../Assets/IMAGES/g5.png'),
-  },
-];
+function imageUrl(path) {
+  if (!path || typeof path !== 'string') return null;
+  const base = (API_BASE_URL || '').replace(/\/+$/, '');
+  return path.startsWith('http') ? path : `${base}/${path.replace(/^\//, '')}`;
+}
 
 const CompatibleProfilesScreen = ({ navigation }) => {
+  const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    getCompatibleProfilesApi()
+      .then(res => {
+        const data = res?.data ?? res;
+        const list = Array.isArray(data?.profiles) ? data.profiles : [];
+        setProfiles(list);
+      })
+      .catch(() => {
+        setProfiles([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const isEmpty = !loading && (!profiles || profiles.length === 0);
+
   return (
     <ImageBackground
       source={require('../../../Assets/IMAGES/addd.png')}
@@ -122,10 +57,6 @@ const CompatibleProfilesScreen = ({ navigation }) => {
 
       {/* Header */}
       <View style={styles.headerContainer}>
-        {/* <TouchableOpacity style={styles.iconButton}>
-          <Icon name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity> */}
-
         <View style={styles.headerTitleContainer}>
           <Text style={styles.headerTitle}>Compatible Profiles</Text>
         </View>
@@ -135,48 +66,63 @@ const CompatibleProfilesScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Profiles Grid */}
-      <FlatList
-        data={profiles}
-        keyExtractor={item => item.id}
-        numColumns={3}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-        renderItem={({ item, index }) => {
-          const isMiddleItem = index % 3 === 1; // Middle image in every row
+      {loading ? (
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator size="large" color="#A9E8D8" />
+        </View>
+      ) : isEmpty ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No compatible profiles found</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={profiles}
+          keyExtractor={item => String(item?.id ?? item?.name ?? Math.random())}
+          numColumns={3}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContainer}
+          renderItem={({ item, index }) => {
+            const isMiddleItem = index % 3 === 1;
+            const imageUri = imageUrl(item?.image || item?.face_image);
 
-          return (
-            <TouchableOpacity
-              onPress={() => navigation?.navigate('OtherUserScreen')}
-              style={[
-                styles.cardContainer,
-                isMiddleItem && styles.cardContainerSmall, // smaller vertical scale
-              ]}
-            >
-              <Image source={item.image} style={styles.profileImage} />
-              <View style={styles.overlay}>
-                {!isMiddleItem ? (
-                  // Normal cards (left + right)
-                  <>
-                    <View style={styles.infoTop}>
-                      <Text style={styles.name}>{item.name}</Text>
-                      <Text style={styles.age}>{item.age}</Text>
-                    </View>
-                    <View style={styles.infoBottom}>
-                      <Text style={styles.compatibility}>92% Compatible</Text>
-                    </View>
-                  </>
+            return (
+              <TouchableOpacity
+                onPress={() => navigation?.navigate('OtherUserScreen', { userId: item?.id })}
+                style={[
+                  styles.cardContainer,
+                  isMiddleItem && styles.cardContainerSmall,
+                ]}
+              >
+                {imageUri ? (
+                  <Image source={{ uri: imageUri }} style={styles.profileImage} />
                 ) : (
-                  // Middle card (only percentage on TOP)
-                  <View style={styles.centerTopInfo}>
-                    <Text style={styles.centerCompatibility}>92%</Text>
-                  </View>
+                  <View style={[styles.profileImage, styles.profileImagePlaceholder]} />
                 )}
-              </View>
-            </TouchableOpacity>
-          );
-        }}
-      />
+                <View style={styles.overlay}>
+                  {!isMiddleItem ? (
+                    <>
+                      <View style={styles.infoTop}>
+                        <Text style={styles.name} numberOfLines={1}>{item?.name ?? ''}</Text>
+                      </View>
+                      <View style={styles.infoBottom}>
+                        <Text style={styles.compatibility}>
+                          {item?.compatibility_percentage ?? `${item?.compatibility_score ?? '—'}%`} Compatible
+                        </Text>
+                      </View>
+                    </>
+                  ) : (
+                    <View style={styles.centerTopInfo}>
+                      <Text style={styles.centerCompatibility}>
+                        {item?.compatibility_percentage ?? `${item?.compatibility_score ?? '—'}%`}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      )}
     </ImageBackground>
   );
 };
@@ -216,6 +162,18 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
     paddingTop: 20,
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  emptyText: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 16,
+    fontFamily: 'Urbanist-Medium',
+    textAlign: 'center',
+  },
   cardContainer: {
     flex: 1 / 3,
     margin: 5,
@@ -228,6 +186,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 16,
+  },
+  profileImagePlaceholder: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

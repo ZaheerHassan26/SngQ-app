@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,61 @@ import {
   Image,
   ScrollView,
   ImageBackground,
+  ActivityIndicator,
+  Alert,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch } from 'react-redux';
+import { CommonActions } from '@react-navigation/native';
+import { signOutApi } from '../../../utils/Apis';
+import { logoutAction } from '../../../redux/actions';
+import { persistor } from '../../../redux/store';
+import { navigationRef } from '../../../utils/navigationRef';
 
 const MenuScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await signOutApi();
+    } catch (_) {
+      // Proceed with local logout even if API fails (e.g. network or already invalid token)
+    }
+    dispatch(logoutAction());
+    try {
+      await persistor.purge();
+    } catch (_) {}
+    setLoggingOut(false);
+    if (navigationRef.isReady()) {
+      navigationRef.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'AuthStack',
+              state: { index: 0, routes: [{ name: 'IntroScreen' }] },
+            },
+          ],
+        }),
+      );
+    }
+  };
+
+  const onLogoutPress = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Sign Out', style: 'destructive', onPress: handleLogout },
+      ],
+    );
+  };
   const menuItems = [
     { title: 'My Profile', icon: 'person-outline', route: 'ProfileScreen' },
     {
@@ -52,6 +102,19 @@ const MenuScreen = ({ navigation }) => {
       style={styles.backgroundImage}
       resizeMode="cover"
     >
+      <Modal
+        visible={loggingOut}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+      >
+        <View style={styles.logoutOverlay}>
+          <View style={styles.logoutLoaderBox}>
+            <ActivityIndicator size="large" color="#fff" />
+            <Text style={styles.logoutLoaderText}>Signing out...</Text>
+          </View>
+        </View>
+      </Modal>
       <View style={styles.overlay}>
         {/* Header */}
         <View style={styles.header}>
@@ -109,9 +172,14 @@ const MenuScreen = ({ navigation }) => {
           {/* Logout Button */}
           <TouchableOpacity
             style={styles.logoutButton}
-            onPress={() => alert('Logged out')}
+            onPress={onLogoutPress}
+            disabled={loggingOut}
           >
-            <Text style={styles.logoutText}>Logout</Text>
+            {loggingOut ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.logoutText}>Logout</Text>
+            )}
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -247,5 +315,25 @@ const styles = StyleSheet.create({
     height: 40,
     marginRight: 15,
     resizeMode: 'contain',
+  },
+  logoutOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoutLoaderBox: {
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    borderRadius: 16,
+    paddingVertical: 24,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+    minWidth: 160,
+  },
+  logoutLoaderText: {
+    color: '#fff',
+    fontSize: 16,
+    marginTop: 12,
+    fontFamily: 'Urbanist-Medium',
   },
 });

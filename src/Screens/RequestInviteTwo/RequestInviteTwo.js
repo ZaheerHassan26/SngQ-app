@@ -70,7 +70,7 @@ const RequestInviteTwo = ({ navigation, route }) => {
         translucent
         backgroundColor="transparent"
       />
-      <AuthHeader title="Request Invite" onBack={() => navigation?.goBack()} />
+      <AuthHeader showBackButton={false} title="Request Invite" onBack={() => navigation?.goBack()} />
 
       {/* Question */}
       <View style={styles.textContainer}>

@@ -4,6 +4,7 @@ import {
   GET_MESSAGES,
   GET_QUESTIONS,
   IS_VIP,
+  LOGOUT,
   POST_APPROVAL_DATA,
   PRO_DETAIL,
   REMEMBER_ME,
@@ -157,6 +158,12 @@ function userReducer(state = inititalState, action) {
         ...state,
         requestInviteData: requestInviteDataInitial,
         postApprovalData: postApprovalDataInitial,
+      };
+    case LOGOUT:
+      return {
+        ...inititalState,
+        requestInviteData: { ...requestInviteDataInitial },
+        postApprovalData: { ...postApprovalDataInitial },
       };
     default:
       return state;

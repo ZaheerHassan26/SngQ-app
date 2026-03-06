@@ -11,6 +11,7 @@ import {
   PermissionsAndroid,
   Image,
 } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import { useDispatch, useSelector } from 'react-redux';
 import Slider from '@react-native-community/slider';
 import Geolocation from '@react-native-community/geolocation';
@@ -22,6 +23,13 @@ import { getToastRef } from '../../../utils/toastRef';
 
 const { width } = Dimensions.get('window');
 
+const DEFAULT_REGION = {
+  latitude: 37.78825,
+  longitude: -122.4324,
+  latitudeDelta: 0.01,
+  longitudeDelta: 0.01,
+};
+
 const DistanceScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const postApprovalData = useSelector(
@@ -30,6 +38,8 @@ const DistanceScreen = ({ navigation }) => {
   const [distance, setDistance] = useState(15);
   const [loading, setLoading] = useState(false);
   const [locationReady, setLocationReady] = useState(false);
+  const [mapRegion, setMapRegion] = useState(DEFAULT_REGION);
+  const [markerCoord, setMarkerCoord] = useState(null);
 
   const stepIndex = 4;
   const totalSteps = 4;
@@ -46,6 +56,13 @@ const DistanceScreen = ({ navigation }) => {
               longitude: String(longitude),
             }),
           );
+          setMapRegion({
+            latitude,
+            longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          });
+          setMarkerCoord({ latitude, longitude });
           setLocationReady(true);
         },
         () => {
@@ -132,18 +149,24 @@ const DistanceScreen = ({ navigation }) => {
           </Text>
         </View>
 
-        {/* Map Section */}
+        {/* Map Section - Google Map with user location marker */}
         <View style={styles.mapContainer}>
-          <ImageBackground
-            source={require('../../../Assets/IMAGES/newc.png')}
-            resizeMode="cover"
+          <MapView
             style={styles.map}
+            region={mapRegion}
+            showsUserLocation={false}
+            showsMyLocationButton={false}
+            onRegionChangeComplete={r => setMapRegion(r)}
           >
-            <Image
-              source={require('../../../Assets/IMAGES/rrr.png')}
-              style={styles.mapCircle}
-            />
-          </ImageBackground>
+            {markerCoord && (
+              <Marker
+                coordinate={markerCoord}
+                image={require('../../../Assets/IMAGES/rrr.png')}
+                anchor={{ x: 0.5, y: 1 }}
+                style={styles.marker}
+              />
+            )}
+          </MapView>
         </View>
 
         {/* Slider */}
@@ -257,19 +280,19 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   mapContainer: {
-    height: 220,
+    height: 219,
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 30,
   },
   map: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+    borderRadius: 16,
   },
-  mapCircle: {
-    width: 100,
-    height: 100,
+  marker: {
+    width: 25,
+    height: 25,
     resizeMode: 'contain',
   },
   sliderLabelRow: {

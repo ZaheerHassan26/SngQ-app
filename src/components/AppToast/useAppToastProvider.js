@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const TOAST_DURATION = 2500;
+const TOAST_DURATION = 1500;
 
 export const useAppToastProvider = () => {
   const [queue, setQueue] = useState([]);

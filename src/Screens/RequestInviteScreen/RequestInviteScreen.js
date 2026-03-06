@@ -11,6 +11,7 @@ import {
   Dimensions,
   ImageBackground,
   Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
@@ -26,6 +27,7 @@ import AuthInput from '../../components/AuthInput/AuthInput';
 import PhoneInput from '../../components/PhoneInput/PhoneInput';
 import { setRequestInviteData } from '../../redux/actions';
 import { validatePhoneForCountry } from '../../utils/phoneValidation';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const { width } = Dimensions.get('window');
 
@@ -235,9 +237,11 @@ const RequestInviteScreen = ({ route, navigation }) => {
         <AuthHeader title="Request Invite" onBack={() => navigation.goBack()} />
 
         {/* Scroll Content */}
-        <ScrollView
+        <KeyboardAwareScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          enableOnAndroid
         >
           <Text style={styles.title}>
             Thanks, {displayName}. Where are you located?
@@ -284,7 +288,7 @@ const RequestInviteScreen = ({ route, navigation }) => {
           />
 
           {/* Phone */}
-          <View style={{ marginTop: 20,width:"107%",right:12}}>
+          <View style={{ marginTop: 20, width: "107%", right: 12 }}>
             <Controller
               control={control}
               name="phone"
@@ -374,13 +378,14 @@ const RequestInviteScreen = ({ route, navigation }) => {
               </>
             )}
           />
-        </ScrollView>
+        </KeyboardAwareScrollView>
+
 
         {/* Button */}
         <TouchableOpacity
           onPress={handleSubmit(onNext)}
           activeOpacity={0.8}
-          style={{ marginBottom: 15, alignSelf: 'center' }}
+          style={{ marginVertical: 15, alignSelf: 'center' }}
         >
           <LinearGradient
             colors={['#255A3B', '#3DA8A1']}
@@ -487,7 +492,7 @@ const RequestInviteScreen = ({ route, navigation }) => {
           </ImageBackground>
         </Modal>
       </SafeAreaView>
-    </ImageBackground>
+    </ImageBackground >
   );
 };
 

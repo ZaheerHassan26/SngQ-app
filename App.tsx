@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { LogBox, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { navigationRef } from './src/utils/navigationRef';
 import { Provider } from 'react-redux';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppToastProvider, useAppToast } from './src/components/AppToast';
@@ -38,17 +39,17 @@ const App = () => {
           Store.dispatch(resetOnboardingAndPostApproval());
         }}
       >
+          <SafeAreaProvider>
         <AppToastProvider>
           <ToastRefSetter />
-          <SafeAreaProvider>
-            <NavigationContainer>
+            <NavigationContainer ref={navigationRef}>
               <StatusBar barStyle={'light-content'} />
               <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="AuthStack" component={AuthStack} />
               </Stack.Navigator>
             </NavigationContainer>
-          </SafeAreaProvider>
         </AppToastProvider>
+          </SafeAreaProvider>
       </PersistGate>
     </Provider>
   );

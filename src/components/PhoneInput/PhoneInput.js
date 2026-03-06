@@ -63,7 +63,6 @@ const PhoneInput = ({
             }}
             onClose={() => setVisible(false)}
           />
-          <Text style={styles.callingCode}>+{callingCode}</Text>
           <Icon name="chevron-down" size={16} color="#fff" />
         </TouchableOpacity>
         <TextInput
@@ -122,6 +121,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: 'white',
     fontSize: 16,
+    paddingLeft: 10,
     fontFamily: 'Urbanist-Medium',
   },
   errorText: {

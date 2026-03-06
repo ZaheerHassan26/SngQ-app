@@ -84,7 +84,7 @@ export default function LifestyleScreen({ navigation }) {
   const handleNext = () => {
     if (!canGoNext) return;
     dispatch(setPostApprovalData({ interests: selected }));
-    navigation.replace('AddPicturesScreen');
+    navigation.navigate('AddPicturesScreen');
   };
 
   return (
@@ -214,7 +214,7 @@ export default function LifestyleScreen({ navigation }) {
               <TouchableOpacity
                 onPress={() => {
                   dispatch(setPostApprovalData({ interests: selected }));
-                  navigation.replace('AddInterestScreen');
+                  navigation.navigate('AddInterestScreen');
                 }}
                 style={styles.addBtn}
                 activeOpacity={0.8}

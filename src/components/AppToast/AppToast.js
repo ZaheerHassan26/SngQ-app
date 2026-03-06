@@ -6,16 +6,18 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppToastContext } from './context';
 import { useAppToastProvider } from './useAppToastProvider';
 
 const COLORS = {
-  error: { bg: '#c0392b', icon: '✕' },
-  warning: { bg: '#f39c12', icon: '!' },
-  success: { bg: '#27ae60', icon: '✓' },
+  error: { bg: '#E8F5E9', border: '#c62828', text: '#b71c1c' },
+  warning: { bg: '#FFF8E1', border: '#f9a825', text: '#f57f17' },
+  success: { bg: '#E8F5E9', border: '#2e7d32', text: '#1b5e20' },
 };
 
 export const AppToastProvider = ({ children }) => {
+  const insets = useSafeAreaInsets();
   const { value, toast } = useAppToastProvider();
 
   const messageText =
@@ -31,55 +33,46 @@ export const AppToastProvider = ({ children }) => {
     <AppToastContext.Provider value={value}>
       {children}
       {toast && styleForType && (
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={value.hideAll}
-          style={styles.overlay}
-        >
-          <View style={[styles.box, { backgroundColor: styleForType.bg }]}>
-            <Text style={styles.icon}>{styleForType.icon}</Text>
-            <Text style={styles.message} numberOfLines={3}>
+        <View style={[styles.container, { top: insets.top || 12 }]} pointerEvents="box-none">
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={value.hideAll}
+            style={[styles.bar, { backgroundColor: styleForType.bg, borderLeftColor: styleForType.border }]}
+          >
+            <Text style={[styles.message, { color: styleForType.text }]} numberOfLines={2}>
               {messageText}
             </Text>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
       )}
     </AppToastContext.Provider>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.3)',
-  },
-  box: {
-    minWidth: 200,
-    maxWidth: 280,
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    alignItems: 'center',
+  container: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    zIndex: 9999,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
       },
-      android: { elevation: 8 },
+      android: { elevation: 4 },
     }),
   },
-  icon: {
-    fontSize: 28,
-    color: '#fff',
-    marginBottom: 8,
+  bar: {
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderLeftWidth: 4,
   },
   message: {
-    fontSize: 15,
-    color: '#fff',
-    textAlign: 'center',
+    fontSize: 14,
+    fontFamily: 'Urbanist-Medium',
   },
 });

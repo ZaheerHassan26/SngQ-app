@@ -5,18 +5,22 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
  * Common header for auth flow screens: back button, center title pill, right spacer.
  * Use in LoginScreen, LoginWithPhone, OtpVerificationScreen, ForgotPassOne, etc.
  */
-const AuthHeader = ({ title = '', onBack }) => {
+const AuthHeader = ({ title = '', onBack, showBackButton = true }) => {
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.backTouch} onPress={onBack}>
-        <Image
-          source={require('../../Assets/IMAGES/Icon.png')}
-          style={styles.icon}
-          resizeMode="contain"
-        />
-      </TouchableOpacity>
+      {showBackButton ? (
+        <TouchableOpacity onPress={onBack}>
+          <Image
+            source={require('../../Assets/IMAGES/Icon.png')}
+            style={styles.icon}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      ) : (
+        <View style={styles.spacer} />
+      )}
       <View style={styles.pillContainer}>
-          <Text style={styles.pillText}>{title}</Text>
+        <Text style={styles.pillText}>{title}</Text>
       </View>
       <View style={styles.spacer} />
     </View>
@@ -29,9 +33,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  backTouch: {
-    padding: 8,
-  },
+
   icon: {
     width: 40,
     height: 40,
@@ -40,7 +42,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 50,
     paddingVertical: 8,
-    paddingHorizontal: 60,
+    flex: 1,
+    maxWidth: 160,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pillText: {
     color: 'white',
@@ -48,7 +53,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Urbanist-Medium',
   },
   spacer: {
-    width: 26,
+    width: 40,
   },
 });
 

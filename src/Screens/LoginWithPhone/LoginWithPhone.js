@@ -8,6 +8,10 @@ import {
   Dimensions,
   Platform,
   ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
+  ScrollView,
+  Pressable,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
@@ -47,7 +51,6 @@ const LoginWithPhone = ({ navigation }) => {
       errors => setApiError(errors?.phone || errors?.form || ''),
     );
   };
-  console.log('apiError=======>', apiError);
 
   return (
     <ImageBackground
@@ -55,74 +58,95 @@ const LoginWithPhone = ({ navigation }) => {
       style={styles.background}
       resizeMode="cover"
     >
-      <View style={[styles.container, { paddingTop: insets.top || (Platform.OS === 'ios' ? 60 : 15) }]}>
-        <AuthHeader title="Login" onBack={() => navigation.goBack()} />
-
-        <View style={styles.content}>
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>Enter your Phone Number</Text>
-          <Text style={styles.subtitle}>
-            Add your number. We’ll send you a verification code so we know
-            you’re real.
-          </Text>
-          </View>
-
-          <View style={styles.phoneInputWrap}>
-          <Controller
-            control={control}
-            name="phone"
-            rules={{ required: 'Phone number is required' }}
-            render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
-              <PhoneInput
-                value={value}
-                onChangeText={onChange}
-                countryCode={countryCode}
-                callingCode={callingCode}
-                onSelectCountry={country => {
-                  setCountryCode(country.cca2);
-                  setCallingCode(country.callingCode[0] || '1');
-                }}
-                error={fieldError?.message || apiError}
-                label="Phone Number"
-                placeholder="1234567890"
-              />
-            )}
-          />
-          </View>
-        </View>
-
-        <View style={styles.spacer} />
-
-        <View style={[styles.buttonFooter, { paddingBottom: insets.bottom + 16 }]}>
-          <TouchableOpacity
-            onPress={handleSubmit(onSubmit)}
-            activeOpacity={0.8}
-            disabled={loader}
+      <Pressable style={styles.flex1} onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          style={styles.flex1}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        >
+          <ScrollView
+            style={styles.flex1}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            <LinearGradient
-              colors={['#5DAD92', '#2F5749']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.signInBtn}
-            >
-              {loader ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.signInText}>Submit</Text>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-      </View>
+            <View style={[styles.container, { paddingTop: insets.top || (Platform.OS === 'ios' ? 60 : 15) }]}>
+              <AuthHeader title="Login" onBack={() => navigation.goBack()} />
+
+              <View style={styles.content}>
+                <View style={styles.textContainer}>
+                  <Text style={styles.title}>Enter your Phone Number</Text>
+                  <Text style={styles.subtitle}>
+                    Add your number. We’ll send you a verification code so we know
+                    you’re real.
+                  </Text>
+                </View>
+
+                <View style={styles.phoneInputWrap}>
+                  <Controller
+                    control={control}
+                    name="phone"
+                    rules={{ required: 'Phone number is required' }}
+                    render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
+                      <PhoneInput
+                        value={value}
+                        onChangeText={onChange}
+                        countryCode={countryCode}
+                        callingCode={callingCode}
+                        onSelectCountry={country => {
+                          setCountryCode(country.cca2);
+                          setCallingCode(country.callingCode[0] || '1');
+                        }}
+                        error={fieldError?.message || apiError}
+                        label="Phone Number"
+                        placeholder="1234567890"
+                      />
+                    )}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.spacer} />
+
+              <View style={[styles.buttonFooter, { paddingBottom: insets.bottom + 16 }]}>
+                <TouchableOpacity
+                  onPress={handleSubmit(onSubmit)}
+                  activeOpacity={0.8}
+                  disabled={loader}
+                >
+                  <LinearGradient
+                    colors={['#5DAD92', '#2F5749']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.signInBtn}
+                  >
+                    {loader ? (
+                      <ActivityIndicator color="#fff" />
+                    ) : (
+                      <Text style={styles.signInText}>Submit</Text>
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Pressable>
     </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  flex1: {
+    flex: 1,
+  },
   background: {
     flex: 1,
     width,
     height,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   container: {
     flex: 1,

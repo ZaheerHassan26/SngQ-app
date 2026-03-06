@@ -21,6 +21,7 @@ import { getToastRef } from '../../../utils/toastRef';
 
 const { width } = Dimensions.get('window');
 const MAX_IMAGES = 6;
+const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
 
 const initialSlots = Array.from({ length: MAX_IMAGES }, (_, i) => ({
   id: `slot-${i}`,
@@ -34,9 +35,14 @@ const AddPicturesScreen = ({ navigation }) => {
   const pickImageForSlot = index => {
     launchImageLibrary({ mediaType: 'photo', quality: 1 }, result => {
       if (result.assets && result.assets.length > 0) {
-        const uri = result.assets[0].uri;
+        const asset = result.assets[0];
+        const fileSize = asset.fileSize;
+        if (fileSize != null && fileSize > MAX_IMAGE_SIZE_BYTES) {
+          getToastRef()?.showError?.('Image must be less than 2 MB. Please choose a smaller image.');
+          return;
+        }
         setSlots(prev =>
-          prev.map((s, i) => (i === index ? { ...s, uri } : s)),
+          prev.map((s, i) => (i === index ? { ...s, uri: asset.uri } : s)),
         );
       }
     });
@@ -56,7 +62,7 @@ const AddPicturesScreen = ({ navigation }) => {
       return;
     }
     dispatch(setPostApprovalData({ pictureUris }));
-    navigation.replace('DistanceScreen');
+    navigation.navigate('DistanceScreen');
   };
 
   const renderItem = ({ item, index }) => {

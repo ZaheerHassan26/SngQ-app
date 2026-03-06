@@ -1,6 +1,7 @@
 import {
   GET_MESSAGES,
   GET_QUESTIONS,
+  LOGOUT,
   POST_APPROVAL_DATA,
   REMEMBER_ME,
   REQUEST_INVITE_DATA,
@@ -113,4 +114,9 @@ export const setPostApprovalData = payload => ({
 /** Reset onboarding (requestInviteData) and post-approval state. Call after rehydration on cold start. */
 export const resetOnboardingAndPostApproval = () => ({
   type: RESET_ONBOARDING_AND_POST_APPROVAL,
+});
+
+/** Clear all auth/user state. Use on sign out with persistor.purge() and navigation reset. */
+export const logoutAction = () => ({
+  type: LOGOUT,
 });

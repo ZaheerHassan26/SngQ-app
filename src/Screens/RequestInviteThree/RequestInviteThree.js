@@ -17,6 +17,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import AuthHeader from '../../components/AuthHeader/AuthHeader';
 import { getToastRef } from '../../utils/toastRef';
 import { setRequestInviteData } from '../../redux/actions';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -84,8 +85,11 @@ const RequestInviteThree = ({ route, navigation }) => {
         translucent
         backgroundColor="transparent"
       />
+      <SafeAreaView style={styles.safeArea}>
 
       <AuthHeader title="Request Invite" onBack={() => navigation.goBack()} />
+      </SafeAreaView>
+
 
       {/* Title Text */}
       <View style={styles.textContainer}>
@@ -139,31 +143,10 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    paddingTop: Platform.OS === 'ios' ? 50 : 50,
+    paddingHorizontal: 12,
     paddingBottom: Platform.OS === 'ios' ? 60 : 30,
   },
-  topContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Platform.OS === 'ios' ? 70 : 40,
-  },
-  backButton: {
-    borderRadius: 50,
-    padding: 8,
-  },
-  requestInvite: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 25,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  requestText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-    fontFamily: 'Urbanist-Medium',
-  },
+
   textContainer: {
     alignItems: 'center',
     marginTop: 60,

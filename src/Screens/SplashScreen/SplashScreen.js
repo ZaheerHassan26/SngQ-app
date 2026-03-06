@@ -2,22 +2,39 @@ import React, { useEffect } from 'react';
 import {
   Image,
   StyleSheet,
-  Text,
-  TouchableOpacity,
   ImageBackground,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProfileApi, getPostLoginRedirect } from '../../utils/Apis';
+
+const SPLASH_DELAY_MS = 2000;
 
 const SplashScreen = ({ navigation }) => {
-  const { rememberme } = useSelector(state => state.userReducer);
+  const dispatch = useDispatch();
+  const token = useSelector(state => state.userReducer?.token ?? '');
 
   useEffect(() => {
-    setTimeout(() => {
-      navigation.replace('IntroScreen');
-    }, 2000);
-  }, []);
+    const hasValidToken = typeof token === 'string' && token.trim().length > 0;
+
+    const timer = setTimeout(() => {
+      if (!hasValidToken) {
+        navigation.replace('IntroScreen');
+        return;
+      }
+      getProfileApi(dispatch)
+        .then(data => {
+          const redirect = getPostLoginRedirect(data);
+          navigation.replace(redirect.screen, redirect.params);
+        })
+        .catch(() => {
+          navigation.replace('IntroScreen');
+        });
+    }, SPLASH_DELAY_MS);
+
+    return () => clearTimeout(timer);
+  }, [navigation, token, dispatch]);
 
   return (
     <ImageBackground

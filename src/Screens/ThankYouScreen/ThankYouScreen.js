@@ -9,12 +9,14 @@ import {
   Dimensions,
   Platform,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { onboardingApi, showApiErrorToast } from '../../utils/Apis';
 import { getToastRef } from '../../utils/toastRef';
+import OnboardingProgressHeader from '../../components/OnboardingProgressHeader/OnboardingProgressHeader';
 
 const { width } = Dimensions.get('window');
 
@@ -42,7 +44,7 @@ function capitalizeFirst(str) {
   return lower.charAt(0).toUpperCase() + lower.slice(1);
 }
 
-function buildOnboardingPayload(requestInviteData, userValue, dispatch, setLoading, navigation) {
+function buildOnboardingPayload(requestInviteData, userValue, dispatch, setLoading, navigation, setApiError) {
   const data = requestInviteData ?? {};
   const whatId = data.whatLookingFor;
   const whatLabel =
@@ -70,14 +72,23 @@ function buildOnboardingPayload(requestInviteData, userValue, dispatch, setLoadi
     face_image_uri: data.profileImageUri || data.faceImageUri || null,
   };
 
+  const TOAST_DURATION_MS = 1500;
+
   const onSuccess = (response) => {
+    setLoading(false);
     getToastRef()?.showSuccess?.('Profile submitted successfully.');
-    const data = response?.data?.data ?? response?.data ?? {};
-    if (data.is_onboarding_completed === true && navigation?.replace) {
-      navigation.replace('TellUsScreen');
-    }
+    setTimeout(() => {
+      const data = response?.data?.data ?? response?.data ?? {};
+      if (data.is_onboarding_completed === true && navigation?.replace) {
+        navigation.replace('TellUsScreen');
+      } else if (navigation?.navigate) {
+        navigation.navigate('TellUsScreen');
+      }
+    }, TOAST_DURATION_MS);
   };
   onboardingApi(dispatch, payload, setLoading, onSuccess).catch(err => {
+    setLoading(false);
+    setApiError?.(true);
     showApiErrorToast(err, 'Failed to submit profile. Please try again.');
   });
 }
@@ -92,13 +103,15 @@ const ThankYouScreen = ({ navigation }) => {
   );
   const token = useSelector(state => state.userReducer?.token ?? '');
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState(false);
   const hasCalledOnboarding = useRef(false);
 
   useEffect(() => {
     if (hasCalledOnboarding.current || !token) return;
     hasCalledOnboarding.current = true;
+    setApiError(false);
     setLoading(true);
-    buildOnboardingPayload(requestInviteData, userValue, dispatch, setLoading, navigation);
+    buildOnboardingPayload(requestInviteData, userValue, dispatch, setLoading, navigation, setApiError);
   }, [token, dispatch, requestInviteData, userValue, navigation]);
 
   return (
@@ -108,39 +121,26 @@ const ThankYouScreen = ({ navigation }) => {
       blurRadius={6}
     >
       <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={{
-              // backgroundColor: 'rgba(255,255,255,0.1)',
-              borderRadius: 50,
-              // width: 40,
-              // height: 40,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            onPress={() => navigation.goBack()}
-          >
-            <Image
-              source={require('../../Assets/IMAGES/Icon.png')}
-              style={{ width: 40, height: 40, resizeMode: 'contain' }}
-            />
-          </TouchableOpacity>
-          <View style={styles.pillContainer}>
-            <Text style={styles.pillText}>Thank You</Text>
-          </View>
-          <View style={{ width: 26 }} /> {/* spacer for symmetry */}
-        </View>
+        <OnboardingProgressHeader
+          screenName="ThankYouScreen"
+          onBack={() => navigation.goBack()}
+        />
         <Text style={styles.title}>Thank You</Text>
         <Text style={styles.subtitle}>
           Saige is reviewing your details. You will be notified via email and
           app for the approval of your profile
         </Text>
-        {loading && (
-          <View style={styles.loaderWrap}>
-            <ActivityIndicator size="large" color="#3DA8A1" />
+
+        {/* Loading overlay while onboarding API is in progress */}
+        <Modal visible={loading} transparent animationType="fade" statusBarTranslucent>
+          <View style={styles.loadingOverlay}>
+            <View style={styles.loadingBox}>
+              <ActivityIndicator size="large" color="#fff" />
+              <Text style={styles.loadingText}>Submitting...</Text>
+            </View>
           </View>
-        )}
+        </Modal>
+
         {/* Content */}
         <View style={styles.content}>
           <Image
@@ -155,12 +155,13 @@ const ThankYouScreen = ({ navigation }) => {
           <TouchableOpacity
             onPress={() => navigation.navigate('TellUsScreen')}
             activeOpacity={0.8}
+            disabled={loading || apiError}
           >
             <LinearGradient
               colors={['#255A3B', '#3DA8A1']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.nextBtn}
+              style={[styles.nextBtn, (loading || apiError) && styles.nextBtnDisabled]}
             >
               <Text style={styles.nextText}>Next</Text>
             </LinearGradient>
@@ -192,12 +193,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     justifyContent: 'space-between',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
   pillContainer: {
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 50,
@@ -210,9 +205,25 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'Urbanist-Medium',
   },
-  loaderWrap: {
+  loadingOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 16,
+  },
+  loadingBox: {
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    borderRadius: 16,
+    paddingVertical: 24,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+    minWidth: 160,
+  },
+  loadingText: {
+    color: '#fff',
+    fontSize: 16,
+    marginTop: 12,
+    fontFamily: 'Urbanist-Medium',
   },
   content: {
     alignItems: 'center',
@@ -240,7 +251,7 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: 'center',
     paddingBottom: 20,
-    marginTop: Platform.OS === 'android' ? 80 : 200,
+    marginTop: Platform.OS === 'android' ? 80 : 140,
   },
   nextBtn: {
     width: width * 0.9,
@@ -250,6 +261,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderColor: '#3DA8A1',
     borderWidth: 0.3,
+  },
+  nextBtnDisabled: {
+    opacity: 0.5,
   },
   nextText: {
     color: 'white',

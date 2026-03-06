@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { getRequestInviteStep } from '../../config/requestInviteSteps';
+import OnboardingProgressHeader from '../../components/OnboardingProgressHeader/OnboardingProgressHeader';
 import { setRequestInviteData } from '../../redux/actions';
 
 const { width } = Dimensions.get('window');
@@ -28,9 +28,6 @@ const LookingForScreen = ({ navigation }) => {
   const [selected, setSelected] = useState(
     requestInviteData.whatLookingFor ?? null,
   );
-
-  const { stepIndex, totalSteps } = getRequestInviteStep('LookingForScreen');
-  const progressWidth = `${(stepIndex / totalSteps) * 100}%`;
 
   const options = [
     {
@@ -68,28 +65,10 @@ const LookingForScreen = ({ navigation }) => {
           translucent
           backgroundColor="transparent"
         />
-
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Image
-              source={require('../../Assets/IMAGES/Icon.png')}
-              style={styles.icon2}
-            />
-          </TouchableOpacity>
-
-          <View style={styles.progressWrapper}>
-            <View style={styles.progressBarBackground}>
-              <View
-                style={[styles.progressBarFill, { width: progressWidth }]}
-              />
-            </View>
-            <Text style={styles.stepText}>{`${stepIndex}/${totalSteps}`}</Text>
-          </View>
-        </View>
+        <OnboardingProgressHeader
+          screenName="LookingForScreen"
+          onBack={() => navigation.goBack()}
+        />
 
         {/* Question */}
         <View style={styles.content}>
@@ -100,41 +79,41 @@ const LookingForScreen = ({ navigation }) => {
           </Text> */}
 
           {/* Options */}
-          <View style={{marginTop: '15%'}}>
-          {options.map(item => {
-            const isSelected = selected === item.id;
-            return (
-              <TouchableOpacity
-                key={item.id}
-                activeOpacity={0.9}
-                onPress={() => setSelected(item.id)}
-                style={{ marginBottom: 15, position: 'relative',borderRadius: 10 }}
-              >
-                {isSelected && (
-                  <LinearGradient
-                    colors={[
-                      'rgba(37, 90, 59, 0.5)',
-                      'rgba(61, 168, 161, 0.5)',
-                    ]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={[{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      borderRadius: 10,
-                    }]}
-                  />
-                )}
-                <View style={styles.card}>
-                  <Text style={styles.cardTitle}>{item.title}</Text>
-                  <Text style={styles.cardDesc}>{item.description}</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+          <View style={{ marginTop: '15%' }}>
+            {options.map(item => {
+              const isSelected = selected === item.id;
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  activeOpacity={0.9}
+                  onPress={() => setSelected(item.id)}
+                  style={{ marginBottom: 15, position: 'relative', borderRadius: 10 }}
+                >
+                  {isSelected && (
+                    <LinearGradient
+                      colors={[
+                        'rgba(37, 90, 59, 0.5)',
+                        'rgba(61, 168, 161, 0.5)',
+                      ]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={[{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        borderRadius: 10,
+                      }]}
+                    />
+                  )}
+                  <View style={styles.card}>
+                    <Text style={styles.cardTitle}>{item.title}</Text>
+                    <Text style={styles.cardDesc}>{item.description}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
 
           </View>
         </View>
@@ -162,6 +141,7 @@ const LookingForScreen = ({ navigation }) => {
             </LinearGradient>
           </TouchableOpacity>
         </View>
+
       </SafeAreaView>
     </ImageBackground>
   );
@@ -178,40 +158,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 25,
-    paddingTop: 20,
+    marginTop: 10,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  backButton: {
-    // backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 50,
-    // padding: 8,
-  },
-  progressWrapper: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  progressBarBackground: {
-    flex: 1,
-    height: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 2,
-    marginRight: 10,
-  },
-  progressBarFill: {
-    height: 4,
-    backgroundColor: '#7FE9C3',
-    borderRadius: 2,
-  },
-  stepText: {
-    color: '#fff',
-    fontSize: 14,
-  },
+
   content: {
     flex: 1,
   },

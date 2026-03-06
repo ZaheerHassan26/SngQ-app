@@ -75,8 +75,9 @@ function showAuthErrorToast(message = 'Please enter correct details.') {
 }
 
 /**
- * Post-login redirect based on API flags (is_onboarding_completed, is_post_approval_completed).
+ * Post-login redirect based on API flags (onboarding, post_approval, quiz, chat_intake).
  * Returns { screen, params } for navigation.replace(screen, params).
+ * When all four are complete → MainStack (home); otherwise NextChatScreen until quiz + chat intake done.
  * @param {object} data - API response.data (may have data.data or flat fields)
  * @param {string} [displayName] - For social login, pre-fill name on RequestInviteTwo
  */
@@ -84,6 +85,8 @@ export function getPostLoginRedirect(data, displayName = '') {
   const payload = data?.data || data || {};
   const isOnboardingCompleted = payload.is_onboarding_completed === 1 || payload.is_onboarding_completed === true;
   const isPostApprovalCompleted = payload.is_post_approval_completed === 1 || payload.is_post_approval_completed === true;
+  const isQuizCompleted = payload.is_quiz_completed === 1 || payload.is_quiz_completed === true;
+  const isChatIntakeCompleted = payload.is_chat_intake_completed === 1 || payload.is_chat_intake_completed === true;
 
   if (!isOnboardingCompleted) {
     return { screen: 'RequestInviteTwo', params: displayName ? { name: displayName } : {} };
@@ -91,11 +94,10 @@ export function getPostLoginRedirect(data, displayName = '') {
   if (!isPostApprovalCompleted) {
     return { screen: 'TellUsScreen', params: {} };
   }
-  // Onboarding + post approval done → go to Chat (inside MainStack)
-  return {
-    screen: 'MainStack',
-    params: { screen: 'Chat', params: { screen: 'ChatScreen' } },
-  };
+  if (isQuizCompleted && isChatIntakeCompleted) {
+    return { screen: 'MainStack', params: {} };
+  }
+  return { screen: 'NextChatScreen', params: {} };
 }
 
 /**
@@ -156,16 +158,24 @@ export const loginApiFun = async (
     // Use JSON body to avoid FormData-related ERR_NETWORK on Android; most backends accept JSON for login.
     const response = await apiClient.post(`${CUSTOMER}/login`, { email, password });
     console.log('response=======>', response.data);
-    setLoader(false);
     const data = response.data;
     const {token, user} = normalizeAuthResponse(data);
     if (token) {
       dispatch(dispatchUserValue(data?.data || data));
       dispatch(dispatchRememberMe(true));
       dispatch(dispatchToken(token));
-      const redirect = getPostLoginRedirect(data);
-      navigation.replace(redirect.screen, redirect.params);
+      try {
+        const profileData = await getProfileApi(dispatch);
+        const redirect = getPostLoginRedirect(profileData);
+        setLoader(false);
+        navigation.replace(redirect.screen, redirect.params);
+      } catch (e) {
+        const redirect = getPostLoginRedirect(data);
+        setLoader(false);
+        navigation.replace(redirect.screen, redirect.params);
+      }
     } else {
+      setLoader(false);
       setFieldErrors?.(getFieldErrors(data, 'Invalid email or password.'));
     }
   } catch (error) {
@@ -192,7 +202,6 @@ export const googleSignInApi = async (
       social_token: socialToken,
       verified_by: 'google',
     });
-    setLoader(false);
     const data = response.data;
     const {token, user} = normalizeAuthResponse(data);
     if (token) {
@@ -200,9 +209,18 @@ export const googleSignInApi = async (
       dispatch(dispatchRememberMe(true));
       dispatch(dispatchToken(token));
       const displayName = user?.name || name || '';
-      const redirect = getPostLoginRedirect(data, displayName);
-      navigation.replace(redirect.screen, redirect.params);
+      try {
+        const profileData = await getProfileApi(dispatch);
+        const redirect = getPostLoginRedirect(profileData, displayName);
+        setLoader(false);
+        navigation.replace(redirect.screen, redirect.params);
+      } catch (e) {
+        const redirect = getPostLoginRedirect(data, displayName);
+        setLoader(false);
+        navigation.replace(redirect.screen, redirect.params);
+      }
     } else {
+      setLoader(false);
       showAuthErrorToast(data?.message || 'Google sign in failed.');
     }
   } catch (error) {
@@ -229,7 +247,6 @@ export const appleSignInApi = async (
       social_token: socialToken,
       verified_by: 'apple',
     });
-    setLoader(false);
     const data = response.data;
     const {token, user} = normalizeAuthResponse(data);
     if (token) {
@@ -237,9 +254,18 @@ export const appleSignInApi = async (
       dispatch(dispatchRememberMe(true));
       dispatch(dispatchToken(token));
       const displayName = (user?.name || name || '').trim();
-      const redirect = getPostLoginRedirect(data, displayName);
-      navigation.replace(redirect.screen, redirect.params);
+      try {
+        const profileData = await getProfileApi(dispatch);
+        const redirect = getPostLoginRedirect(profileData, displayName);
+        setLoader(false);
+        navigation.replace(redirect.screen, redirect.params);
+      } catch (e) {
+        const redirect = getPostLoginRedirect(data, displayName);
+        setLoader(false);
+        navigation.replace(redirect.screen, redirect.params);
+      }
     } else {
+      setLoader(false);
       showAuthErrorToast(data?.message || 'Apple sign in failed.');
     }
   } catch (error) {
@@ -301,20 +327,36 @@ export const verifyOtpApi = async (
   setFieldErrors?.({});
   try {
     const response = await apiClient.post(`${CUSTOMER}/verify-otp`, {
-      country_code: 'us',
+      country_code: countryCode,
       phone,
       otp,
     });
-    setLoader(false);
     const data = response.data;
+    console.log('data=======>', data);
     const {token, user} = normalizeAuthResponse(data);
     if (token) {
       dispatch(dispatchUserValue(data?.data || data));
       dispatch(dispatchRememberMe(true));
       dispatch(dispatchToken(token));
-      const redirect = getPostLoginRedirect(data);
-      navigation.replace(redirect.screen, redirect.params);
+      getToastRef()?.showSuccess?.('Verification successful.');
+      const TOAST_DURATION_MS = 1500;
+      const doRedirect = (redirect) => {
+        setLoader(false);
+        setTimeout(() => {
+          navigation.replace(redirect.screen, redirect.params);
+        }, TOAST_DURATION_MS);
+      };
+      getProfileApi(dispatch)
+        .then(profileData => {
+          const redirect = getPostLoginRedirect(profileData);
+          doRedirect(redirect);
+        })
+        .catch(() => {
+          const redirect = getPostLoginRedirect(data);
+          doRedirect(redirect);
+        });
     } else {
+      setLoader(false);
       setFieldErrors?.(getFieldErrors(data, 'Invalid OTP.'));
     }
   } catch (error) {
@@ -533,12 +575,28 @@ export const getPackagesApi = async () => {
   return response;
 };
 
-/** Get customer profile (Bearer) */
+/** Sign out (Bearer). GET api/v1/customer/sign-out. Call before clearing local state. */
+export const signOutApi = async () => {
+  const response = await apiClient.get(`${CUSTOMER}/sign-out`);
+  return response;
+};
+
+/** Get compatible profiles (Bearer). GET api/v1/customer/compatible-profiles. Call when user is fully onboarded (e.g. on cold start redirect to home). */
+export const getCompatibleProfilesApi = async () => {
+  const response = await apiClient.get(`${CUSTOMER}/compatible-profiles`);
+  return response.data;
+};
+
+/** Get customer profile (Bearer). Updates both proDetail and userValue so screens (e.g. ChatScreen) see latest is_quiz_completed, is_chat_intake_completed, etc. */
 export const getProfileApi = async dispatch => {
   try {
     const response = await apiClient.get(`${CUSTOMER}/profile`);
     const data = response.data?.data || response.data;
     dispatch(dispatchProDetail(Array.isArray(data) ? data : [data]));
+    const profile = Array.isArray(data) ? data[0] : data;
+    if (profile && typeof profile === 'object') {
+      dispatch(dispatchUserValue(profile));
+    }
     return response.data;
   } catch (error) {
     if (error.response?.status === 401) {
@@ -546,6 +604,90 @@ export const getProfileApi = async dispatch => {
     } else {
       showApiErrorToast(error, 'Something went wrong. Please try again later.');
     }
+    throw error;
+  }
+};
+
+/** Get quiz greeting message (Bearer). GET api/v1/customer/quiz/greeting. Returns { message } from response. */
+export const getGreetingApi = async () => {
+  const response = await apiClient.get(`${CUSTOMER}/quiz/greeting`);
+  const data = response.data?.data ?? response.data ?? {};
+  return data;
+};
+
+/** Get customer quiz questions (Bearer). GET api/v1/customer/quiz/questions. Returns questions array. */
+export const getQuizQuestionsApi = async () => {
+  const response = await apiClient.get(`${CUSTOMER}/quiz/questions`);
+  const raw = response.data?.data ?? response.data ?? {};
+  const questions = raw?.questions ?? (Array.isArray(raw) ? raw : []);
+  return questions;
+};
+
+/** Submit customer quiz (Bearer). POST api/v1/customer/quiz/submit. responses: [{ question_id, response_value }]. Returns full response.data for branching (e.g. requires_tie_breaker, traits, this_or_that). */
+export const submitQuizApi = async responses => {
+  try {
+    const response = await apiClient.post(`${CUSTOMER}/quiz/submit`, {
+      responses,
+    });
+    return response.data;
+  } catch (error) {
+    showApiErrorToast(error, 'Failed to submit quiz. Please try again.');
+    throw error;
+  }
+};
+
+/** Submit This or That tie-breaker (Bearer). POST api/v1/customer/quiz/this-or-that. body: { selected_trait }. */
+export const submitThisOrThatApi = async selectedTrait => {
+  try {
+    const response = await apiClient.post(`${CUSTOMER}/quiz/this-or-that`, {
+      selected_trait: selectedTrait,
+    });
+    return response.data;
+  } catch (error) {
+    showApiErrorToast(error, 'Failed to submit. Please try again.');
+    throw error;
+  }
+};
+
+/** Get chat intake questions (Bearer). GET api/v1/customer/chat/questions. Returns array of { id, question_text, question_number }. */
+export const getChatQuestionsApi = async () => {
+  try {
+    const response = await apiClient.get(`${CUSTOMER}/chat/questions`);
+    const raw = response.data?.data ?? response.data ?? {};
+    const list = raw?.questions ?? (Array.isArray(raw) ? raw : []);
+    return (list || []).map((q, index) => ({
+      id: q.id,
+      question_text: q.question_text ?? q.text ?? '',
+      question_number: q.question_number ?? index + 1,
+    }));
+  } catch (error) {
+    showApiErrorToast(error, 'Failed to load questions. Please try again.');
+    throw error;
+  }
+};
+
+/** Submit chat intake response (Bearer). POST api/v1/customer/chat/response. */
+export const submitChatResponseApi = async (questionId, responseText, questionNumber) => {
+  try {
+    const response = await apiClient.post(`${CUSTOMER}/chat/response`, {
+      question_id: questionId,
+      response_text: responseText,
+      question_number: questionNumber ?? 1,
+    });
+    return response.data;
+  } catch (error) {
+    showApiErrorToast(error, 'Failed to submit. Please try again.');
+    throw error;
+  }
+};
+
+/** Complete chat intake (Bearer). POST api/v1/customer/chat/complete. */
+export const completeChatIntakeApi = async () => {
+  try {
+    const response = await apiClient.post(`${CUSTOMER}/chat/complete`);
+    return response.data;
+  } catch (error) {
+    showApiErrorToast(error, 'Failed to complete. Please try again.');
     throw error;
   }
 };

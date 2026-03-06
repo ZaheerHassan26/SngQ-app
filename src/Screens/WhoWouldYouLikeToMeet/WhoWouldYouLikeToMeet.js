@@ -11,7 +11,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { getRequestInviteStep } from '../../config/requestInviteSteps';
+import OnboardingProgressHeader from '../../components/OnboardingProgressHeader/OnboardingProgressHeader';
 import { setRequestInviteData } from '../../redux/actions';
 
 const WhoWouldYouLikeToMeet = ({ navigation }) => {
@@ -24,9 +24,6 @@ const WhoWouldYouLikeToMeet = ({ navigation }) => {
   const [selected, setSelected] = useState(
     requestInviteData.whoWouldYouLikeToMeet || null,
   );
-
-  const { stepIndex, totalSteps } = getRequestInviteStep('WhoWouldYouLikeToMeet');
-  const progressWidth = `${(stepIndex / totalSteps) * 100}%`;
 
   const options = [
     { id: 'male', label: 'Male', icon: 'male-outline' },
@@ -55,27 +52,10 @@ const WhoWouldYouLikeToMeet = ({ navigation }) => {
       />
 
       <View style={styles.overlay}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Image
-              source={require('../../Assets/IMAGES/Icon.png')}
-              style={{ width: 40, height: 40, resizeMode: 'contain' }}
-            />
-          </TouchableOpacity>
-
-          <View style={styles.progressWrapper}>
-            <View style={styles.progressBarBackground}>
-              <View
-                style={[styles.progressBarFill, { width: progressWidth }]}
-              />
-            </View>
-            <Text style={styles.stepText}>{`${stepIndex}/${totalSteps}`}</Text>
-          </View>
-        </View>
+        <OnboardingProgressHeader
+          screenName="WhoWouldYouLikeToMeet"
+          onBack={() => navigation.goBack()}
+        />
 
         {/* QUESTION */}
         <View style={styles.content}>
@@ -170,35 +150,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 25,
     paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 20 : 60,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  backButton: {
-    marginRight: 10,
-  },
-  progressWrapper: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  progressBarBackground: {
-    flex: 1,
-    height: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 2,
-    marginRight: 10,
-  },
-  progressBarFill: {
-    height: 4,
-    backgroundColor: '#7FE9C3',
-    borderRadius: 2,
-  },
-  stepText: {
-    color: '#fff',
-    fontSize: 14,
   },
   content: {
     flex: 1,

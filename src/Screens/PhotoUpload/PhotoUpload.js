@@ -15,17 +15,16 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
-import { getRequestInviteStep } from '../../config/requestInviteSteps';
+import OnboardingProgressHeader from '../../components/OnboardingProgressHeader/OnboardingProgressHeader';
 import { setRequestInviteData } from '../../redux/actions';
+import { getToastRef } from '../../utils/toastRef';
 
 const { width } = Dimensions.get('window');
+const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
 
 const PhotoUpload = ({ navigation }) => {
   const dispatch = useDispatch();
   const [photo, setPhoto] = useState(null);
-
-  const { stepIndex, totalSteps } = getRequestInviteStep('PhotoUpload');
-  const progressWidth = `${(stepIndex / totalSteps) * 100}%`;
 
   const pickImage = async () => {
     const result = await launchImageLibrary({
@@ -34,7 +33,13 @@ const PhotoUpload = ({ navigation }) => {
     });
 
     if (result.assets && result.assets.length > 0) {
-      setPhoto(result.assets[0].uri);
+      const asset = result.assets[0];
+      const fileSize = asset.fileSize;
+      if (fileSize != null && fileSize > MAX_IMAGE_SIZE_BYTES) {
+        getToastRef()?.showError?.('Image must be less than 2 MB. Please choose a smaller image.');
+        return;
+      }
+      setPhoto(asset.uri);
     }
   };
 
@@ -54,24 +59,10 @@ const PhotoUpload = ({ navigation }) => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Top progress and back */}
-          <View style={styles.topRow}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Image
-                source={require('../../Assets/IMAGES/Icon.png')}
-                style={styles.icon2}
-              />
-            </TouchableOpacity>
-
-            <View style={styles.progressBarWrapper}>
-              <View style={styles.progressBar}>
-                <View
-                  style={[styles.progressFill, { width: progressWidth }]}
-                />
-              </View>
-              <Text style={styles.progressText}>{`${stepIndex}/${totalSteps}`}</Text>
-            </View>
-          </View>
+          <OnboardingProgressHeader
+            screenName="PhotoUpload"
+            onBack={() => navigation.goBack()}
+          />
 
           {/* Title and subtitle */}
           <View style={styles.textContainer}>
@@ -148,35 +139,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 24,
     paddingBottom: 120, // give bottom space for footer
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  progressBarWrapper: {
-    flex: 1,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginLeft: 20,
-  },
-  progressBar: {
-    flex: 1,
-    height: 4,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    borderRadius: 4,
-    marginRight: 10,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#5DAD92',
-    borderRadius: 4,
-  },
-  progressText: {
-    color: 'white',
-    fontSize: 14,
-    fontFamily: 'Urbanist-Medium',
   },
   textContainer: {
     marginTop: '15%',
