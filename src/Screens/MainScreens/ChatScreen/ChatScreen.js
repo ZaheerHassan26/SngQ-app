@@ -3,7 +3,7 @@
 // Place your background image at: ./assets/background-top.png
 // If you want to use the screenshot provided in the conversation, copy it to that path.
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import {
   Image,
   ActivityIndicator,
   Modal,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import LinearGradient from 'react-native-linear-gradient';
@@ -39,6 +40,7 @@ const DEFAULT_GREETING =
 
 export default function ChatScreen({ navigation }) {
   const dispatch = useDispatch();
+  const scrollViewRef = useRef(null);
   const [greetingMessage, setGreetingMessage] = useState(INITIAL_GREETING);
   const [loadingGreeting, setLoadingGreeting] = useState(true);
   const [inputText, setInputText] = useState('');
@@ -265,6 +267,29 @@ export default function ChatScreen({ navigation }) {
     }
   }, [selectedTrait, submitOverlayVisible, dispatch, startChatIntake]);
 
+  const scrollToBottom = useCallback((animated = true) => {
+    requestAnimationFrame(() => {
+      scrollViewRef.current?.scrollToEnd?.({ animated });
+    });
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom(false);
+  }, [scrollToBottom]);
+
+  useEffect(() => {
+    scrollToBottom(true);
+  }, [
+    userMessage,
+    showQuizCard,
+    inChatIntake,
+    currentChatQuestionIndex,
+    currentQuestionIndex,
+    tieBreakerData,
+    loadingGreeting,
+    scrollToBottom,
+  ]);
+
 
   return (
     <ImageBackground
@@ -278,7 +303,11 @@ export default function ChatScreen({ navigation }) {
         backgroundColor="transparent"
       />
 
-      <View style={styles.safe}>
+      <KeyboardAvoidingView
+        style={styles.safe}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
         {submitOverlayVisible ? (
           <Modal visible transparent animationType="fade">
             <View style={styles.overlay}>
@@ -287,8 +316,12 @@ export default function ChatScreen({ navigation }) {
           </Modal>
         ) : null}
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          onContentSizeChange={() => scrollToBottom(true)}
         >
           {/* Top header row */}
           <View style={styles.topRow}>
@@ -659,6 +692,8 @@ export default function ChatScreen({ navigation }) {
             value={inputText}
             onChangeText={setInputText}
             onSubmitEditing={handleSend}
+            blurOnSubmit={false}
+            onFocus={() => scrollToBottom(true)}
           />
           <TouchableOpacity style={styles.iconBtn} onPress={handleSend}>
             <Icon name="send" size={22} color="#3DA8A1" />
@@ -676,7 +711,7 @@ export default function ChatScreen({ navigation }) {
             />
           </TouchableOpacity>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </ImageBackground>
   );
 }

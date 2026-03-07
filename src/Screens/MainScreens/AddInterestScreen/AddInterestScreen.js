@@ -13,6 +13,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import LinearGradient from 'react-native-linear-gradient';
 import { setPostApprovalData } from '../../../redux/actions';
+import { addOwnInterestApi, showApiErrorToast } from '../../../utils/Apis';
 
 const { width } = Dimensions.get('window');
 
@@ -22,18 +23,34 @@ const AddInterestScreen = ({ navigation }) => {
     state => state.userReducer?.postApprovalData ?? {},
   );
   const [interest, setInterest] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const trimmed = interest.trim();
     if (trimmed === '') return;
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      await addOwnInterestApi(trimmed);
+    } catch (error) {
+      setLoading(false);
+      showApiErrorToast(error, 'Unable to add interest right now. Please try again.');
+      return;
+    }
+
     const existingCustom = postApprovalData.customInterestLabels || [];
     const existingInterests = postApprovalData.interests || [];
+    const hasCustom = existingCustom.some(x => String(x).toLowerCase() === trimmed.toLowerCase());
+    const hasInterest = existingInterests.some(x => String(x).toLowerCase() === trimmed.toLowerCase());
+
     dispatch(
       setPostApprovalData({
-        customInterestLabels: [...existingCustom, trimmed],
-        interests: [...existingInterests, trimmed],
+        customInterestLabels: hasCustom ? existingCustom : [...existingCustom, trimmed],
+        interests: hasInterest ? existingInterests : [...existingInterests, trimmed],
       }),
     );
+    setLoading(false);
     navigation.replace('LifestyleScreen');
   };
 
@@ -77,11 +94,11 @@ const AddInterestScreen = ({ navigation }) => {
             onPress={handleNext}
             activeOpacity={0.8}
             style={styles.buttonWrapper}
-            disabled={!interest.trim()}
+            disabled={!interest.trim() || loading}
           >
             <LinearGradient
               colors={
-                interest.trim()
+                interest.trim() && !loading
                   ? ['#255A3B', '#3DA8A1']
                   : ['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.2)']
               }
@@ -89,7 +106,7 @@ const AddInterestScreen = ({ navigation }) => {
               end={{ x: 1, y: 1 }}
               style={styles.nextButton}
             >
-              <Text style={styles.nextText}>Next</Text>
+              <Text style={styles.nextText}>{loading ? 'Submitting...' : 'Next'}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

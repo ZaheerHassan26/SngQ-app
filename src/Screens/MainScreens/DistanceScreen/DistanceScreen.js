@@ -30,6 +30,25 @@ const DEFAULT_REGION = {
   longitudeDelta: 0.01,
 };
 
+const INTEREST_VALUE_MAP = {
+  Travel: 'travel',
+  Vacation: 'vacation',
+  Romance: 'romance',
+  Chat: 'chat',
+  'Friends\nwith\nbenefit': 'friends_with_benefit',
+  Joga: 'joga',
+  Cooking: 'cooking',
+  Pets: 'pets',
+  Movies: 'movies',
+  Gaming: 'gaming',
+  Music: 'music',
+  Photography: 'photography',
+  Art: 'art',
+  'Experiments\nopen': 'experiments_open',
+  'Sugar\ndaddy': 'sugar_daddy',
+  "Don't\nknow": 'dont_know',
+};
+
 const DistanceScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const postApprovalData = useSelector(
@@ -88,6 +107,19 @@ const DistanceScreen = ({ navigation }) => {
   }, [dispatch]);
 
   const handleNext = () => {
+    const selectedInterests = postApprovalData.interests || [];
+    const customInterestLabels = (postApprovalData.customInterestLabels || [])
+      .map(label => String(label || '').trim())
+      .filter(Boolean);
+
+    const normalizedInterests = selectedInterests
+      .map(item => {
+        const label = String(item || '').trim();
+        if (!label) return null;
+        return INTEREST_VALUE_MAP[label] || label;
+      })
+      .filter(Boolean);
+
     dispatch(
       setPostApprovalData({
         preferred_distance_km: String(Math.round(distance)),
@@ -98,11 +130,20 @@ const DistanceScreen = ({ navigation }) => {
       preferred_distance_km: String(Math.round(distance)),
       latitude: postApprovalData.latitude || '0',
       longitude: postApprovalData.longitude || '0',
-      interests: (postApprovalData.interests || []).map(i =>
-        typeof i === 'string' ? i.toLowerCase().replace(/\s+/g, '_') : String(i),
-      ),
+      interests: normalizedInterests,
+      customInterestLabels,
       pictureUris: postApprovalData.pictureUris || [],
     };
+    if (__DEV__) {
+      console.log('[PostApproval][Payload]', {
+        interests: payload.interests,
+        customInterestLabels: payload.customInterestLabels,
+        preferred_distance_km: payload.preferred_distance_km,
+        latitude: payload.latitude,
+        longitude: payload.longitude,
+        pictureCount: payload.pictureUris.length,
+      });
+    }
     setLoading(true);
     postApprovalApi(dispatch, payload, setLoading, () => {
       getToastRef()?.showSuccess?.('Submitted successfully.');

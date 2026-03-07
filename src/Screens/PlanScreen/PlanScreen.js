@@ -87,6 +87,27 @@ export default function PlanScreen({ navigation }) {
     priceLabel: getPriceLabel(p.monthly_price),
   }));
 
+  const handleProceed = () => {
+    const selectedPackage = packages.find(p => p.slug === selected) || null;
+    if (!selectedPackage) return;
+
+    const amount = Number(selectedPackage.monthly_price ?? 0);
+    if (Number.isFinite(amount) && amount > 0) {
+      navigation?.navigate('MakePayment', {
+        selectedPackage: {
+          slug: selectedPackage.slug,
+          title: selectedPackage.title,
+          monthly_price: selectedPackage.monthly_price,
+          yearly_price: selectedPackage.yearly_price,
+          tier_type: selectedPackage.tier_type,
+        },
+      });
+      return;
+    }
+
+    navigation?.replace('MainStack');
+  };
+
   return (
     <ImageBackground
       source={require('../../Assets/IMAGES/splashBg2.png')} // gradient background image
@@ -206,12 +227,17 @@ export default function PlanScreen({ navigation }) {
         {/* Proceed button pinned to bottom */}
         <View style={styles.bottomBar}>
           <TouchableOpacity
-            onPress={() => navigation?.navigate('MembershipPlanScreen')}
+            onPress={handleProceed}
             activeOpacity={0.9}
             style={styles.proceedBtn}
+            disabled={loading || plansForUi.length === 0 || !selected}
           >
             <LinearGradient
-              colors={['#3b8e75', '#69b79e']}
+              colors={
+                loading || plansForUi.length === 0 || !selected
+                  ? ['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.2)']
+                  : ['#3b8e75', '#69b79e']
+              }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.proceedGradient}

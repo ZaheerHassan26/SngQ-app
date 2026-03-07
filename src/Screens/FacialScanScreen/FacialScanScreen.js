@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,13 +8,13 @@ import {
   Dimensions,
   PermissionsAndroid,
   Platform,
-  Image,
+  Alert,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
-import { Camera } from 'react-native-camera-kit';
+import { Camera, CameraType } from 'react-native-camera-kit';
 import OnboardingProgressHeader from '../../components/OnboardingProgressHeader/OnboardingProgressHeader';
 import { setRequestInviteData } from '../../redux/actions';
 
@@ -22,6 +22,7 @@ const { width, height } = Dimensions.get('window');
 
 const FacialScanScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const cameraRef = useRef(null);
   const requestInviteData = useSelector(
     state => state.userReducer?.requestInviteData ?? {},
   );
@@ -40,11 +41,31 @@ const FacialScanScreen = ({ navigation }) => {
         );
         setHasPermission(granted === PermissionsAndroid.RESULTS.GRANTED);
       } else {
+        // For iOS, check permission
         setHasPermission(true);
       }
     };
     requestPermission();
   }, []);
+
+  const capturePhoto = async () => {
+    if (cameraRef.current) {
+      try {
+        const image = await cameraRef.current.capture();
+        if (image && image.uri) {
+          dispatch(
+            setRequestInviteData({
+              faceImageUri: image.uri,
+            }),
+          );
+          navigation.navigate('ThankYouScreen');
+        }
+      } catch (error) {
+        console.log('Error capturing photo:', error);
+        Alert.alert('Error', 'Failed to capture photo. Please try again.');
+      }
+    }
+  };
 
   return (
     <ImageBackground
@@ -61,31 +82,24 @@ const FacialScanScreen = ({ navigation }) => {
         {/* Camera View */}
         <View style={styles.contentContainer}>
           <View style={styles.faceBoxContainer}>
-            <View style={styles.imageWrapper}>
-              <Image
-                source={require('../../Assets/IMAGES/face_image.png')}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  resizeMode: 'cover',
-                }}
-              />
-            </View>
-            {/* <View style={styles.faceFrame}>
+            <View style={styles.faceFrame}>
               {hasPermission ? (
                 <Camera
+                  ref={cameraRef}
                   style={styles.cameraPreview}
-                  cameraType="front" 
+                  cameraType={CameraType.Front}
                   flashMode="off"
-                  focusMode="on"
-                  zoomMode="off"
+                  showFrame={false}
+                  scanBarcode={false}
+                  laserColor="rgba(0,0,0,0)"
+                  frameColor="rgba(0,0,0,0)"
                 />
               ) : (
                 <Text style={styles.permissionText}>
                   Waiting for camera permission...
                 </Text>
               )}
-            </View> */}
+            </View>
           </View>
 
           {/* Text section */}
@@ -101,18 +115,7 @@ const FacialScanScreen = ({ navigation }) => {
         {/* Footer */}
         <View style={styles.footer}>
           <TouchableOpacity
-            onPress={() => {
-              if (requestInviteData.profileImageUri) {
-                dispatch(
-                  setRequestInviteData({
-                    faceImageUri:
-                      requestInviteData.faceImageUri ||
-                      requestInviteData.profileImageUri,
-                  }),
-                );
-              }
-              navigation.navigate('ThankYouScreen');
-            }}
+            onPress={capturePhoto}
             activeOpacity={0.8}
           >
             <LinearGradient
@@ -121,7 +124,7 @@ const FacialScanScreen = ({ navigation }) => {
               end={{ x: 1, y: 1 }}
               style={styles.nextBtn}
             >
-              <Text style={styles.nextText}>Next</Text>
+              <Text style={styles.nextText}>Capture & Next</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

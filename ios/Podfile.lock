@@ -2715,6 +2715,42 @@ PODS:
     - SocketRocket
     - Yoga
   - SocketRocket (0.7.1)
+  - Stripe (24.11.1):
+    - StripeApplePay (= 24.11.1)
+    - StripeCore (= 24.11.1)
+    - StripePayments (= 24.11.1)
+    - StripePaymentsUI (= 24.11.1)
+    - StripeUICore (= 24.11.1)
+  - stripe-react-native (0.44.0):
+    - React-Core
+    - Stripe (~> 24.11.0)
+    - StripeApplePay (~> 24.11.0)
+    - StripeFinancialConnections (~> 24.11.0)
+    - StripePayments (~> 24.11.0)
+    - StripePaymentSheet (~> 24.11.0)
+    - StripePaymentsUI (~> 24.11.0)
+  - StripeApplePay (24.11.1):
+    - StripeCore (= 24.11.1)
+  - StripeCore (24.11.1)
+  - StripeFinancialConnections (24.11.1):
+    - StripeCore (= 24.11.1)
+    - StripeUICore (= 24.11.1)
+  - StripePayments (24.11.1):
+    - StripeCore (= 24.11.1)
+    - StripePayments/Stripe3DS2 (= 24.11.1)
+  - StripePayments/Stripe3DS2 (24.11.1):
+    - StripeCore (= 24.11.1)
+  - StripePaymentSheet (24.11.1):
+    - StripeApplePay (= 24.11.1)
+    - StripeCore (= 24.11.1)
+    - StripePayments (= 24.11.1)
+    - StripePaymentsUI (= 24.11.1)
+  - StripePaymentsUI (24.11.1):
+    - StripeCore (= 24.11.1)
+    - StripePayments (= 24.11.1)
+    - StripeUICore (= 24.11.1)
+  - StripeUICore (24.11.1):
+    - StripeCore (= 24.11.1)
   - VisionCamera (4.7.3):
     - VisionCamera/Core (= 4.7.3)
     - VisionCamera/React (= 4.7.3)
@@ -2811,6 +2847,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - SocketRocket (~> 0.7.1)
+  - "stripe-react-native (from `../node_modules/@stripe/stripe-react-native`)"
   - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -2824,6 +2861,14 @@ SPEC REPOS:
     - GTMSessionFetcher
     - PromisesObjC
     - SocketRocket
+    - Stripe
+    - StripeApplePay
+    - StripeCore
+    - StripeFinancialConnections
+    - StripePayments
+    - StripePaymentSheet
+    - StripePaymentsUI
+    - StripeUICore
 
 EXTERNAL SOURCES:
   boost:
@@ -2997,6 +3042,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
+  stripe-react-native:
+    :path: "../node_modules/@stripe/stripe-react-native"
   VisionCamera:
     :path: "../node_modules/react-native-vision-camera"
   Yoga:
@@ -3096,6 +3143,15 @@ SPEC CHECKSUMS:
   RNScreens: 7f643ee0fd1407dc5085c7795460bd93da113b8f
   RNVectorIcons: 791f13226ec4a3fd13062eda9e892159f0981fae
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
+  Stripe: 27045ee70dced5f9bd6d68dc6a3ec6a1224a2a2b
+  stripe-react-native: 491166f627b4ba1da8d436333e5a5dbabec1503a
+  StripeApplePay: ba4d3945eca1fc77e1e1e0a5f9a8e5f559a95149
+  StripeCore: c52f344bd536463458b2fd9a9596fe59198654da
+  StripeFinancialConnections: 5656524a8d3456004f5980485422f11ad11b423b
+  StripePayments: 531338872a070975e272c519c732955b9655c58b
+  StripePaymentSheet: 8bb985c442d613c30c7e60d8a484400ea762f114
+  StripePaymentsUI: 47b030d75d5676ec5e3c19d974e7b09584778a86
+  StripeUICore: 814828b4235e5be53f2a0443c71639e1a6a52f74
   VisionCamera: 7187b3dac1ff3071234ead959ce311875748e14f
   Yoga: 00013dd9cde63a2d98e8002fcc4f5ddb66c10782
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { setPostApprovalData } from '../../../redux/actions';
+import { getOwnInterestsListApi } from '../../../utils/Apis';
 
 const { width: W, height: H } = Dimensions.get('window');
 const BASE_W = 375;
@@ -70,6 +71,41 @@ export default function LifestyleScreen({ navigation }) {
       allBubblesWithLayout.some(b => b.label === l),
     ),
   );
+
+  useEffect(() => {
+    let mounted = true;
+    getOwnInterestsListApi()
+      .then(apiInterests => {
+        if (!mounted || !Array.isArray(apiInterests)) return;
+        if (apiInterests.length === 0) return;
+        const uniqueApiLabels = apiInterests
+          .map(item => String(item || '').trim())
+          .filter(Boolean)
+          .filter((value, index, arr) => arr.findIndex(x => x.toLowerCase() === value.toLowerCase()) === index);
+        if (uniqueApiLabels.length === 0) return;
+
+        dispatch(
+          setPostApprovalData({
+            customInterestLabels: uniqueApiLabels,
+          }),
+        );
+      })
+      .catch(() => {});
+
+    return () => {
+      mounted = false;
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
+    setSelected(prevSelected => {
+      const combined = [...prevSelected, ...initialInterests];
+      const deduped = combined.filter(
+        (value, index, arr) => arr.findIndex(x => x === value) === index,
+      );
+      return deduped.filter(label => allLabels.includes(label)).slice(0, 4);
+    });
+  }, [allLabels, initialInterests]);
 
   const toggle = label => {
     setSelected(prev => {

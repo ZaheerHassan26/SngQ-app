@@ -527,6 +527,20 @@ export const onboardingApi = async (dispatch, payload, setLoader, onSuccess) => 
 export const postApprovalApi = async (dispatch, payload, setLoader, onSuccess) => {
   setLoader?.(true);
   try {
+    if (__DEV__) {
+      console.log('[PostApproval][RequestSummary]', {
+        do_you_smoke: payload?.do_you_smoke,
+        do_you_consume_alcohol: payload?.do_you_consume_alcohol,
+        political_views: payload?.political_views,
+        family_plan: payload?.family_plan,
+        latitude: payload?.latitude,
+        longitude: payload?.longitude,
+        preferred_distance_km: payload?.preferred_distance_km,
+        interests: payload?.interests || [],
+        customInterestLabels: payload?.customInterestLabels || [],
+        pictureCount: (payload?.pictureUris || []).filter(Boolean).length,
+      });
+    }
     const formData = new FormData();
     const textKeys = [
       'do_you_smoke',
@@ -546,6 +560,13 @@ export const postApprovalApi = async (dispatch, payload, setLoader, onSuccess) =
     interests.forEach(val => {
       formData.append('interests[]', String(val));
     });
+    const customInterestLabels = payload?.customInterestLabels || [];
+    customInterestLabels.forEach(val => {
+      const label = String(val || '').trim();
+      if (!label) return;
+      formData.append('custom_interests[]', label);
+      formData.append('custom_interest_labels[]', label);
+    });
     const pictureUris = payload.pictureUris || [];
     pictureUris.forEach((uri, i) => {
       if (uri) {
@@ -557,22 +578,189 @@ export const postApprovalApi = async (dispatch, payload, setLoader, onSuccess) =
       }
     });
     const data = await fetchFormDataPost(`${CUSTOMER}/post-approval`, formData);
+    if (__DEV__) {
+      console.log('[PostApproval][Response]', data);
+    }
     setLoader?.(false);
     const normalized = normalizeAuthResponse(data);
     if (normalized.token) dispatch(dispatchToken(normalized.token));
     if (normalized.user) dispatch(dispatchUserValue(normalized.user));
     onSuccess?.({ data });
   } catch (error) {
+    if (__DEV__) {
+      console.log('[PostApproval][Error]', error?.response?.data ?? error?.data ?? error);
+    }
     setLoader?.(false);
     showApiErrorToast(error, 'Failed to submit. Please try again.');
     throw error;
   }
 };
 
+function normalizeInterestLabel(item) {
+  if (typeof item === 'string') return item.trim();
+  if (!item || typeof item !== 'object') return '';
+  const value =
+    item.name ??
+    item.interest ??
+    item.interest_name ??
+    item.title ??
+    item.label ??
+    '';
+  return String(value).trim();
+}
+
+function normalizeInterestListResponse(responseData) {
+  const payload = responseData?.data ?? responseData ?? {};
+  const list =
+    payload?.interests ??
+    payload?.interest_list ??
+    payload?.custom_interests ??
+    payload?.data ??
+    payload;
+  const arrayData = Array.isArray(list) ? list : [];
+  return arrayData
+    .map(normalizeInterestLabel)
+    .filter(Boolean)
+    .filter((value, index, arr) => arr.findIndex(x => x.toLowerCase() === value.toLowerCase()) === index);
+}
+
+/** Add single custom interest immediately (post-approval flow). */
+export const addOwnInterestApi = async (interestLabel) => {
+  const label = String(interestLabel || '').trim();
+  if (!label) {
+    return { data: [], message: 'Skipped empty interest.' };
+  }
+
+  const endpoints = [
+    `${CUSTOMER}/add-interest`,
+    `${CUSTOMER}/interest`,
+    `${CUSTOMER}/interests`,
+  ];
+
+  let lastError = null;
+  for (const endpoint of endpoints) {
+    try {
+      const response = await apiClient.post(endpoint, {
+        interest: label,
+        interest_name: label,
+        name: label,
+        title: label,
+      });
+      return response.data;
+    } catch (error) {
+      const status = error?.response?.status;
+      if (status === 404 || status === 405) {
+        lastError = error;
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError || new Error('Unable to add interest.');
+};
+
+/** Get user's custom interests list (for persistence after app restart). */
+export const getOwnInterestsListApi = async () => {
+  const endpoints = [
+    `${CUSTOMER}/interests`,
+    `${CUSTOMER}/interest-list`,
+    `${CUSTOMER}/interest`,
+  ];
+
+  let lastError = null;
+  for (const endpoint of endpoints) {
+    try {
+      const response = await apiClient.get(endpoint);
+      return normalizeInterestListResponse(response.data);
+    } catch (error) {
+      const status = error?.response?.status;
+      if (status === 404 || status === 405) {
+        lastError = error;
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError || new Error('Unable to fetch interests list.');
+};
+
 /** Get membership packages (Bearer). GET api/v1/customer/packages */
 export const getPackagesApi = async () => {
   const response = await apiClient.get(`${CUSTOMER}/packages`);
   return response;
+};
+
+function normalizePaymentIntentResponse(rawData) {
+  const data = rawData?.data ?? rawData ?? {};
+  return {
+    clientSecret:
+      data?.payment_intent_client_secret ??
+      data?.paymentIntentClientSecret ??
+      data?.client_secret ??
+      data?.clientSecret ??
+      '',
+    paymentIntentId:
+      data?.payment_intent_id ??
+      data?.paymentIntentId ??
+      data?.intent_id ??
+      data?.id ??
+      '',
+    customerId: data?.customer_id ?? data?.customerId ?? '',
+    ephemeralKey: data?.ephemeral_key ?? data?.ephemeralKey ?? '',
+    amount: data?.amount ?? null,
+    currency: data?.currency ?? 'usd',
+    raw: data,
+  };
+}
+
+/** Create package payment intent for wallet checkout (Google Pay / Apple Pay). */
+export const createPackagePaymentIntentApi = async payload => {
+  const endpoints = [
+    `${CUSTOMER}/packages/payment-intent`,
+    `${CUSTOMER}/payments/package-intent`,
+    `${CUSTOMER}/payments/create-intent`,
+  ];
+
+  let lastError = null;
+  for (const endpoint of endpoints) {
+    try {
+      const response = await apiClient.post(endpoint, payload);
+      return normalizePaymentIntentResponse(response.data);
+    } catch (error) {
+      const status = error?.response?.status;
+      if (status === 404 || status === 405) {
+        lastError = error;
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError || new Error('Unable to create payment intent.');
+};
+
+/** Complete package payment after Stripe confirms wallet transaction. */
+export const completePackagePaymentApi = async payload => {
+  const endpoints = [
+    `${CUSTOMER}/packages/complete-payment`,
+    `${CUSTOMER}/payments/package-complete`,
+    `${CUSTOMER}/payments/complete`,
+  ];
+
+  let lastError = null;
+  for (const endpoint of endpoints) {
+    try {
+      const response = await apiClient.post(endpoint, payload);
+      return response.data;
+    } catch (error) {
+      const status = error?.response?.status;
+      if (status === 404 || status === 405) {
+        lastError = error;
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError || new Error('Unable to complete payment.');
 };
 
 /** Sign out (Bearer). GET api/v1/customer/sign-out. Call before clearing local state. */

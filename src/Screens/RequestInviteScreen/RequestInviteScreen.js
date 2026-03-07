@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
   Modal,
   FlatList,
   Dimensions,
@@ -236,13 +235,19 @@ const RequestInviteScreen = ({ route, navigation }) => {
       <SafeAreaView style={styles.container}>
         <AuthHeader title="Request Invite" onBack={() => navigation.goBack()} />
 
-        {/* Scroll Content */}
-        <KeyboardAwareScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="handled"
-          enableOnAndroid
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         >
+          {/* Scroll Content */}
+          <KeyboardAwareScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scroll}
+            keyboardShouldPersistTaps="handled"
+            enableOnAndroid
+            extraScrollHeight={20}
+          >
           <Text style={styles.title}>
             Thanks, {displayName}. Where are you located?
           </Text>
@@ -378,24 +383,24 @@ const RequestInviteScreen = ({ route, navigation }) => {
               </>
             )}
           />
-        </KeyboardAwareScrollView>
+          </KeyboardAwareScrollView>
 
-
-        {/* Button */}
-        <TouchableOpacity
-          onPress={handleSubmit(onNext)}
-          activeOpacity={0.8}
-          style={{ marginVertical: 15, alignSelf: 'center' }}
-        >
-          <LinearGradient
-            colors={['#255A3B', '#3DA8A1']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.signInBtn}
+          {/* Button */}
+          <TouchableOpacity
+            onPress={handleSubmit(onNext)}
+            activeOpacity={0.8}
+            style={{ marginVertical: 15, alignSelf: 'center' }}
           >
-            <Text style={styles.signInText}>Next</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+            <LinearGradient
+              colors={['#255A3B', '#3DA8A1']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.signInBtn}
+            >
+              <Text style={styles.signInText}>Next</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
 
         {/* Country Modal */}
         <Modal visible={countryModal} animationType="slide" transparent={false}>
