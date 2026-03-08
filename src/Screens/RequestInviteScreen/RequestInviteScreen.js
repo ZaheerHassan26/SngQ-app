@@ -10,7 +10,6 @@ import {
   Dimensions,
   ImageBackground,
   Platform,
-  KeyboardAvoidingView,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
@@ -235,19 +234,16 @@ const RequestInviteScreen = ({ route, navigation }) => {
       <SafeAreaView style={styles.container}>
         <AuthHeader title="Request Invite" onBack={() => navigation.goBack()} />
 
-        <KeyboardAvoidingView
+        {/* KeyboardAwareScrollView only – avoids content jumping too far up when keyboard opens */}
+        <KeyboardAwareScrollView
           style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          enableOnAndroid
+          extraScrollHeight={80}
+          enableResetScrollToCoords={false}
         >
-          {/* Scroll Content */}
-          <KeyboardAwareScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scroll}
-            keyboardShouldPersistTaps="handled"
-            enableOnAndroid
-            extraScrollHeight={20}
-          >
           <Text style={styles.title}>
             Thanks, {displayName}. Where are you located?
           </Text>
@@ -383,13 +379,12 @@ const RequestInviteScreen = ({ route, navigation }) => {
               </>
             )}
           />
-          </KeyboardAwareScrollView>
 
-          {/* Button */}
+          {/* Next button inside scroll so it stays with the form when keyboard is open */}
           <TouchableOpacity
             onPress={handleSubmit(onNext)}
             activeOpacity={0.8}
-            style={{ marginVertical: 15, alignSelf: 'center' }}
+            style={styles.nextButtonWrap}
           >
             <LinearGradient
               colors={['#255A3B', '#3DA8A1']}
@@ -400,7 +395,7 @@ const RequestInviteScreen = ({ route, navigation }) => {
               <Text style={styles.signInText}>Next</Text>
             </LinearGradient>
           </TouchableOpacity>
-        </KeyboardAvoidingView>
+        </KeyboardAwareScrollView>
 
         {/* Country Modal */}
         <Modal visible={countryModal} animationType="slide" transparent={false}>
@@ -514,8 +509,13 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 60,
     marginTop: 40,
+  },
+  nextButtonWrap: {
+    marginTop: 24,
+    marginBottom: 24,
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',
