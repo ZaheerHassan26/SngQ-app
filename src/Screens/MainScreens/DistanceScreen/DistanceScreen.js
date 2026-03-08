@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,8 @@ import {
   PermissionsAndroid,
   Image,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Circle } from 'react-native-maps';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import Slider from '@react-native-community/slider';
 import Geolocation from '@react-native-community/geolocation';
@@ -26,8 +27,14 @@ const { width } = Dimensions.get('window');
 const DEFAULT_REGION = {
   latitude: 37.78825,
   longitude: -122.4324,
-  latitudeDelta: 0.01,
-  longitudeDelta: 0.01,
+  latitudeDelta: 0.08,
+  longitudeDelta: 0.08,
+};
+
+// Scale map zoom so the distance circle doesn't fill the whole map (~1° ≈ 111 km)
+const getDeltasForDistanceKm = (km) => {
+  const deg = Math.max(0.02, Math.min(2, (km * 10) / 111));
+  return { latitudeDelta: deg, longitudeDelta: deg };
 };
 
 const INTEREST_VALUE_MAP = {
@@ -51,6 +58,7 @@ const INTEREST_VALUE_MAP = {
 
 const DistanceScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const mapRef = React.useRef(null);
   const postApprovalData = useSelector(
     state => state.userReducer?.postApprovalData ?? {},
   );
@@ -58,30 +66,35 @@ const DistanceScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [locationReady, setLocationReady] = useState(false);
   const [mapRegion, setMapRegion] = useState(DEFAULT_REGION);
-  const [markerCoord, setMarkerCoord] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
 
   const stepIndex = 4;
   const totalSteps = 4;
   const progressWidth = '100%';
+
+  const centerCoord = {
+    latitude: mapRegion.latitude,
+    longitude: mapRegion.longitude,
+  };
 
   useEffect(() => {
     const fetchLocation = () => {
       Geolocation.getCurrentPosition(
         position => {
           const { latitude, longitude } = position.coords;
+          setUserLocation({ latitude, longitude });
           dispatch(
             setPostApprovalData({
               latitude: String(latitude),
               longitude: String(longitude),
             }),
           );
+          const deltas = getDeltasForDistanceKm(distance);
           setMapRegion({
             latitude,
             longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
+            ...deltas,
           });
-          setMarkerCoord({ latitude, longitude });
           setLocationReady(true);
         },
         () => {
@@ -105,6 +118,66 @@ const DistanceScreen = ({ navigation }) => {
       fetchLocation();
     }
   }, [dispatch]);
+
+  const goToCurrentLocation = useCallback(() => {
+    const deltas = getDeltasForDistanceKm(distance);
+    if (userLocation) {
+      const region = {
+        ...userLocation,
+        ...deltas,
+      };
+      setMapRegion(region);
+      mapRef.current?.animateToRegion?.(region, 400);
+      dispatch(
+        setPostApprovalData({
+          latitude: String(userLocation.latitude),
+          longitude: String(userLocation.longitude),
+        }),
+      );
+    } else {
+      Geolocation.getCurrentPosition(
+        position => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ latitude, longitude });
+          const region = {
+            latitude,
+            longitude,
+            ...getDeltasForDistanceKm(distance),
+          };
+          setMapRegion(region);
+          mapRef.current?.animateToRegion?.(region, 400);
+          dispatch(
+            setPostApprovalData({
+              latitude: String(latitude),
+              longitude: String(longitude),
+            }),
+          );
+        },
+        () => getToastRef()?.showError?.('Could not get location.'),
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+      );
+    }
+  }, [userLocation, dispatch, distance]);
+
+  const handleRegionChangeComplete = useCallback(
+    region => {
+      setMapRegion(prev => {
+        if (!prev) return { ...region };
+        const centerMoved =
+          Math.abs(prev.latitude - region.latitude) > 1e-5 ||
+          Math.abs(prev.longitude - region.longitude) > 1e-5;
+        if (!centerMoved) return prev;
+        dispatch(
+          setPostApprovalData({
+            latitude: String(region.latitude),
+            longitude: String(region.longitude),
+          }),
+        );
+        return { ...prev, latitude: region.latitude, longitude: region.longitude };
+      });
+    },
+    [dispatch],
+  );
 
   const handleNext = () => {
     const selectedInterests = postApprovalData.interests || [];
@@ -190,24 +263,40 @@ const DistanceScreen = ({ navigation }) => {
           </Text>
         </View>
 
-        {/* Map Section - Google Map with user location marker */}
+        {/* Map Section - center marker overlay + translucent circle by distance */}
         <View style={styles.mapContainer}>
           <MapView
+            ref={mapRef}
             style={styles.map}
-            region={mapRegion}
+            region={{ ...mapRegion, ...getDeltasForDistanceKm(distance) }}
             showsUserLocation={false}
             showsMyLocationButton={false}
-            onRegionChangeComplete={r => setMapRegion(r)}
+            onRegionChangeComplete={handleRegionChangeComplete}
           >
-            {markerCoord && (
-              <Marker
-                coordinate={markerCoord}
-                image={require('../../../Assets/IMAGES/rrr.png')}
-                anchor={{ x: 0.5, y: 1 }}
-                style={styles.marker}
-              />
-            )}
+            <Circle
+              center={centerCoord}
+              radius={distance * 1000}
+              fillColor="rgba(59, 130, 246, 0.28)"
+              strokeColor="rgba(59, 130, 246, 0.6)"
+              strokeWidth={1.5}
+            />
           </MapView>
+          {/* Fixed center marker (overlay) */}
+          <View style={styles.centerMarkerOverlay} pointerEvents="none">
+            <Image
+              source={require('../../../Assets/IMAGES/rrr.png')}
+              style={styles.centerMarkerImage}
+              resizeMode="contain"
+            />
+          </View>
+          {/* Current location button */}
+          <TouchableOpacity
+            style={styles.currentLocationButton}
+            onPress={goToCurrentLocation}
+            activeOpacity={0.8}
+          >
+            <Icon name="locate" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
 
         {/* Slider */}
@@ -331,10 +420,35 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 16,
   },
-  marker: {
-    width: 25,
-    height: 25,
-    resizeMode: 'contain',
+  centerMarkerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  centerMarkerImage: {
+    width: 52,
+    height: 52,
+    marginTop: -26,
+  },
+  currentLocationButton: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(52, 211, 153, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      },
+      android: { elevation: 4 },
+    }),
   },
   sliderLabelRow: {
     flexDirection: 'row',

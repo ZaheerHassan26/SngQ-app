@@ -40,6 +40,8 @@ const BUBBLES = [
   { label: "Don't\nknow", size: 68, top: 440, left: 300 },
 ];
 
+const FIXED_LABELS_SET = new Set(BUBBLES.map(b => b.label));
+
 export default function LifestyleScreen({ navigation }) {
   const dispatch = useDispatch();
   const postApprovalData = useSelector(
@@ -48,29 +50,30 @@ export default function LifestyleScreen({ navigation }) {
   const customLabels = postApprovalData.customInterestLabels || [];
   const initialInterests = postApprovalData.interests || [];
 
-  const allBubblesWithLayout = useMemo(() => {
-    const base = BUBBLES.map(b => ({ ...b }));
-    customLabels.forEach((label, i) => {
-      base.push({
-        label,
-        size: 70,
-        top: 460 + i * 58,
-        left: 20 + (i % 4) * 88,
-      });
-    });
-    return base;
-  }, [customLabels]);
+  // Only preset bubbles in the main cloud (no duplicates)
+  const allBubblesWithLayout = useMemo(() => BUBBLES.map(b => ({ ...b })), []);
+
+  // Custom bubbles: only labels added via "Add Your Own" (exclude presets like Travel, Cooking)
+  const customOnlyLabels = useMemo(
+    () => customLabels.filter(l => !FIXED_LABELS_SET.has(l)),
+    [customLabels],
+  );
 
   const allLabels = useMemo(
-    () => allBubblesWithLayout.map(x => x.label),
-    [allBubblesWithLayout],
+    () => [...allBubblesWithLayout.map(x => x.label), ...customOnlyLabels],
+    [allBubblesWithLayout, customOnlyLabels],
   );
 
-  const [selected, setSelected] = useState(() =>
-    initialInterests.filter(l =>
-      allBubblesWithLayout.some(b => b.label === l),
-    ),
-  );
+  const [selected, setSelected] = useState(() => {
+    const presetLabels = new Set(BUBBLES.map(b => b.label));
+    const customOnly = (postApprovalData.customInterestLabels || []).filter(
+      l => !FIXED_LABELS_SET.has(l),
+    );
+    const allowed = new Set([...presetLabels, ...customOnly]);
+    return (postApprovalData.interests || [])
+      .filter(l => allowed.has(l))
+      .slice(0, 4);
+  });
 
   useEffect(() => {
     let mounted = true;
@@ -167,7 +170,7 @@ export default function LifestyleScreen({ navigation }) {
               </Text>
             </View>
 
-            {/* Bubble area */}
+            {/* Bubble area – only preset bubbles (no copies below) */}
             <View style={styles.bubbleArea}>
               {allBubblesWithLayout.map((b, idx) => {
                 const size = sx(b.size);
@@ -244,6 +247,46 @@ export default function LifestyleScreen({ navigation }) {
                 );
               })}
             </View>
+
+            {/* Only custom interests (from "Add Your Own") – in flow, never over the button */}
+            {customOnlyLabels.length > 0 ? (
+              <View style={styles.customBubblesRow}>
+                {customOnlyLabels.map((label, idx) => {
+                  const isSelected = selected.includes(label);
+                  const isDisabled = !isSelected && selected.length >= 4;
+                  return (
+                    <TouchableOpacity
+                      key={`custom-${label}-${idx}`}
+                      activeOpacity={0.9}
+                      onPress={() => !isDisabled && toggle(label)}
+                      disabled={isDisabled}
+                      style={[
+                        styles.customBubbleChip,
+                        isSelected && styles.customBubbleChipSelected,
+                      ]}
+                    >
+                      {isSelected ? (
+                        <LinearGradient
+                          colors={['#255A3B', '#3DA8A1']}
+                          style={[StyleSheet.absoluteFill, styles.customBubbleChipInner]}
+                        />
+                      ) : (
+                        <View style={[StyleSheet.absoluteFill, styles.customBubbleChipInner, { backgroundColor: 'rgba(255,255,255,0.08)' }]} />
+                      )}
+                      <Text
+                        style={[
+                          styles.customBubbleChipText,
+                          { color: isSelected ? 'white' : 'rgba(255,255,255,0.9)' },
+                        ]}
+                        numberOfLines={1}
+                      >
+                        {label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            ) : null}
 
             {/* Bottom buttons (inside scroll, not fixed) */}
             <View style={styles.bottomRow}>
@@ -349,6 +392,38 @@ const styles = StyleSheet.create({
   bubbleArea: {
     minHeight: sy(550),
     marginTop: sy(10),
+  },
+  customBubblesRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignContent: 'center',
+    paddingHorizontal: sx(12),
+    marginTop: sy(8),
+    marginBottom: sy(16),
+    gap: sy(10),
+  },
+  customBubbleChip: {
+    minWidth: sx(72),
+    height: sy(40),
+    borderRadius: sy(20),
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: sx(14),
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
+  },
+  customBubbleChipSelected: {
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  customBubbleChipInner: {
+    borderRadius: sy(20),
+  },
+  customBubbleChipText: {
+    fontSize: sx(14),
+    fontWeight: '500',
+    fontFamily: 'Urbanist-Medium',
   },
   bubbleBase: {
     position: 'absolute',

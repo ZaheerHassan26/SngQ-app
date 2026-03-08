@@ -59,9 +59,11 @@ export default function ChatScreen({ navigation }) {
   const [currentChatQuestionIndex, setCurrentChatQuestionIndex] = useState(0);
   const [chatIntakeComplete, setChatIntakeComplete] = useState(false);
   const [chatProgress, setChatProgress] = useState({ answered: 0, total: 0 });
+  const [chatMessageList, setChatMessageList] = useState([]);
+  const [quizConversationList, setQuizConversationList] = useState([]);
 
   const userValue = useSelector(state => state.userReducer?.userValue ?? null);
-  console.log(userValue,'===');
+  console.log(userValue, '===');
   const isQuizCompleted =
     userValue?.is_quiz_completed === 1 || userValue?.is_quiz_completed === true;
   const isChatIntakeCompleted =
@@ -86,7 +88,7 @@ export default function ChatScreen({ navigation }) {
 
   // Refetch profile on mount so is_quiz_completed / is_chat_intake_completed are up to date (ensures correct quiz vs chat intake flow).
   useEffect(() => {
-    getProfileApi(dispatch).catch(() => {});
+    getProfileApi(dispatch).catch(() => { });
   }, [dispatch]);
 
   // When quiz is completed and chat intake is not, show the chat intake card on mount (no need for user to type first).
@@ -129,6 +131,7 @@ export default function ChatScreen({ navigation }) {
         return;
       }
       setSubmitOverlayVisible(true);
+      const questionText = current.question_text ?? '';
       submitChatResponseApi(current.id, trimmed, current.question_number)
         .then((res) => {
           const data = res?.data ?? res;
@@ -143,6 +146,11 @@ export default function ChatScreen({ navigation }) {
             getToastRef()?.showSuccess?.(sageMessage);
           }
           setChatProgress({ answered, total });
+          setChatMessageList(prev => [
+            ...prev,
+            { type: 'bot', text: questionText, id: `q-${current.id}-${current.question_number}` },
+            { type: 'user', text: trimmed, id: `a-${current.id}-${Date.now()}` },
+          ]);
 
           if (isComplete) {
             return completeChatIntakeApi().then(async () => {
@@ -153,7 +161,7 @@ export default function ChatScreen({ navigation }) {
           }
           setCurrentChatQuestionIndex(prev => prev + 1);
         })
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => setSubmitOverlayVisible(false));
       setInputText('');
       return;
@@ -183,6 +191,7 @@ export default function ChatScreen({ navigation }) {
   ]);
 
   const handleLetsStart = useCallback(() => {
+    setQuizConversationList([]);
     setCurrentQuestionIndex(0);
     setSelectedOption(null);
   }, []);
@@ -196,15 +205,24 @@ export default function ChatScreen({ navigation }) {
   }, []);
 
   const handleNext = useCallback(() => {
-    if (currentQuestionIndex < 9) {
+    if (currentQuestionIndex < 9 && questions && questions[currentQuestionIndex]) {
+      const q = questions[currentQuestionIndex];
+      const questionText = q?.question_text ?? '';
+      const selectedLabel = (q?.options || []).find(o => o.value === selectedOption)?.label ?? selectedOption ?? '';
+      setQuizConversationList(prev => [
+        ...prev,
+        { type: 'bot', text: questionText, id: `quiz-q-${q.id}` },
+        { type: 'user', text: String(selectedLabel), id: `quiz-a-${q.id}-${Date.now()}` },
+      ]);
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedOption(null);
     }
-  }, [currentQuestionIndex]);
+  }, [currentQuestionIndex, questions, selectedOption]);
 
-  const startChatIntake = () => {
+  const startChatIntake = useCallback(() => {
     setSubmitOverlayVisible(true);
-    getChatQuestionsApi()
+    setChatMessageList([]);
+    return getChatQuestionsApi()
       .then(qs => {
         const list = Array.isArray(qs) ? qs : [];
         setChatQuestions(list);
@@ -214,10 +232,14 @@ export default function ChatScreen({ navigation }) {
       })
       .catch(() => setChatQuestions([]))
       .finally(() => setSubmitOverlayVisible(false));
-  };
+  }, []);
 
   const handleSubmitQuiz = useCallback(async () => {
     if (!questions || questions.length === 0 || submittingQuiz) return;
+    const lastQ = questions[9];
+    const lastLabel = lastQ
+      ? (lastQ.options || []).find(o => o.value === selectedOption)?.label ?? selectedOption ?? ''
+      : '';
     const responses = questions.map(q => ({
       question_id: q.id,
       response_value:
@@ -229,6 +251,15 @@ export default function ChatScreen({ navigation }) {
       const response = await submitQuizApi(responses);
       const data = response?.data ?? response;
       const requiresTieBreaker = data?.requires_tie_breaker === true;
+      setQuizConversationList(prev => [
+        ...prev,
+        ...(lastQ
+          ? [
+            { type: 'bot', text: lastQ.question_text ?? '', id: `quiz-q-${lastQ.id}` },
+            { type: 'user', text: String(lastLabel), id: `quiz-a-${lastQ.id}-${Date.now()}` },
+          ]
+          : []),
+      ]);
       if (requiresTieBreaker) {
         const question =
           data?.this_or_that?.question ||
@@ -248,10 +279,16 @@ export default function ChatScreen({ navigation }) {
       setSubmittingQuiz(false);
       setSubmitOverlayVisible(false);
     }
-  }, [questions, answers, submittingQuiz, dispatch, startChatIntake]);
+  }, [questions, answers, selectedOption, submittingQuiz, dispatch, startChatIntake]);
 
   const handleSubmitThisOrThat = useCallback(async () => {
     if (!selectedTrait || submitOverlayVisible) return;
+    const questionText = tieBreakerData?.question ?? 'Which is more attractive in a partner?';
+    setQuizConversationList(prev => [
+      ...prev,
+      { type: 'bot', text: questionText, id: 'tiebreaker-q' },
+      { type: 'user', text: String(selectedTrait), id: `tiebreaker-a-${Date.now()}` },
+    ]);
     setSubmitOverlayVisible(true);
     try {
       const response = await submitThisOrThatApi(selectedTrait);
@@ -259,13 +296,11 @@ export default function ChatScreen({ navigation }) {
         response?.message || 'Quiz completed successfully.';
       getToastRef()?.showSuccess?.(message);
       await getProfileApi(dispatch);
-      startChatIntake();
+      await startChatIntake();
     } catch (err) {
-      // toast in Apis
-    } finally {
       setSubmitOverlayVisible(false);
     }
-  }, [selectedTrait, submitOverlayVisible, dispatch, startChatIntake]);
+  }, [selectedTrait, submitOverlayVisible, tieBreakerData, dispatch, startChatIntake]);
 
   const scrollToBottom = useCallback((animated = true) => {
     requestAnimationFrame(() => {
@@ -287,6 +322,8 @@ export default function ChatScreen({ navigation }) {
     currentQuestionIndex,
     tieBreakerData,
     loadingGreeting,
+    chatMessageList.length,
+    quizConversationList.length,
     scrollToBottom,
   ]);
 
@@ -302,6 +339,21 @@ export default function ChatScreen({ navigation }) {
         translucent
         backgroundColor="transparent"
       />
+
+      <View style={styles.topRow}>
+        <Image
+          source={require('../../../Assets/IMAGES/Icon.png')}
+          style={{ width: 40, height: 40, resizeMode: 'contain' }}
+        />
+
+        <View style={styles.titlePill}>
+          <Text style={styles.titleText}>Saige AI</Text>
+        </View>
+
+        <TouchableOpacity style={styles.roundBtn} activeOpacity={0.7}>
+          <Text style={styles.iconText}>⋯</Text>
+        </TouchableOpacity>
+      </View>
 
       <KeyboardAvoidingView
         style={styles.safe}
@@ -324,23 +376,10 @@ export default function ChatScreen({ navigation }) {
           onContentSizeChange={() => scrollToBottom(true)}
         >
           {/* Top header row */}
-          <View style={styles.topRow}>
-            <Image
-              source={require('../../../Assets/IMAGES/Icon.png')}
-              style={{ width: 40, height: 40, resizeMode: 'contain' }}
-            />
 
-            <View style={styles.titlePill}>
-              <Text style={styles.titleText}>Saige AI</Text>
-            </View>
-
-            <TouchableOpacity style={styles.roundBtn} activeOpacity={0.7}>
-              <Text style={styles.iconText}>⋯</Text>
-            </TouchableOpacity>
-          </View>
           {/* bot bubble: always show greeting (chat questions go in the card below) */}
           {loadingGreeting ? (
-            <View style={{alignItems: 'center', justifyContent: 'center', marginVertical:'40%'}}>
+            <View style={{ alignItems: 'center', justifyContent: 'center', marginVertical: '40%' }}>
               <ActivityIndicator
                 size="small"
                 color="#ffff"
@@ -397,104 +436,102 @@ export default function ChatScreen({ navigation }) {
             </View>
           ) : null}
 
-          {/* Chat intake card: question only, no options; user types answer in input bar. */}
+          {/* Chat intake: keep quiz + This or That visible, then chat Q&A, then current question card */}
           {inChatIntake ? (
-            <View style={styles.quizCard}>
-              <Text style={styles.quizTitle}>A few more questions</Text>
-              <Text style={styles.quizSubtitle}>
-                {chatProgress.total > 0
-                  ? `Question ${currentChatQuestionIndex + 1} of ${chatProgress.total}`
-                  : 'Your answers help us match you better.'}
-              </Text>
-              <View style={styles.divider} />
-              <Text style={styles.question}>
-                {chatQuestions[currentChatQuestionIndex]?.question_text ?? ''}
-              </Text>
-              <View style={styles.cardFooterRow}>
-                <View style={styles.footerIconsRow}>
-                  <Image
-                    source={require('../../../Assets/IMAGES/m2.png')}
-                    style={{ width: 20, height: 20, resizeMode: 'contain' }}
-                  />
-                  <Image
-                    source={require('../../../Assets/IMAGES/m5.png')}
-                    style={{ width: 20, height: 20, resizeMode: 'contain' }}
-                  />
-                  <Image
-                    source={require('../../../Assets/IMAGES/m6.png')}
-                    style={{ width: 20, height: 20, resizeMode: 'contain' }}
-                  />
-                </View>
-              </View>
-            </View>
-          ) : showQuizCard ? (
-            isQuizCompleted && isChatIntakeCompleted ? (
+            <>
+              {quizConversationList.map(item =>
+                item.type === 'bot' ? (
+                  <View key={item.id} style={styles.botBubbleWrapper}>
+                    <View style={styles.botBubble}>
+                      <Text style={styles.botText}>{item.text}</Text>
+                      <View style={styles.botRowIcons}>
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                          <Image
+                            source={require('../../../Assets/IMAGES/m2.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                          <Image
+                            source={require('../../../Assets/IMAGES/m5.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                          <Image
+                            source={require('../../../Assets/IMAGES/m6.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                        </View>
+                        <View>
+                          <Image
+                            source={require('../../../Assets/IMAGES/m1.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                ) : (
+                  <View key={item.id} style={styles.userBubbleWrapper}>
+                    <View style={styles.userBubble}>
+                      <Text style={styles.userText}>{item.text}</Text>
+                    </View>
+                    <Image
+                      source={{ uri: 'https://picsum.photos/200/200?random=1' }}
+                      style={styles.avatar}
+                    />
+                  </View>
+                )
+              )}
+              {chatMessageList.map(item => (
+                item.type === 'bot' ? (
+                  <View key={item.id} style={styles.botBubbleWrapper}>
+                    <View style={styles.botBubble}>
+                      <Text style={styles.botText}>{item.text}</Text>
+                      <View style={styles.botRowIcons}>
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                          <Image
+                            source={require('../../../Assets/IMAGES/m2.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                          <Image
+                            source={require('../../../Assets/IMAGES/m5.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                          <Image
+                            source={require('../../../Assets/IMAGES/m6.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                        </View>
+                        <View>
+                          <Image
+                            source={require('../../../Assets/IMAGES/m1.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                ) : (
+                  <View key={item.id} style={styles.userBubbleWrapper}>
+                    <View style={styles.userBubble}>
+                      <Text style={styles.userText}>{item.text}</Text>
+                    </View>
+                    <Image
+                      source={{ uri: 'https://picsum.photos/200/200?random=1' }}
+                      style={styles.avatar}
+                    />
+                  </View>
+                )
+              ))}
               <View style={styles.quizCard}>
-                <Text style={styles.quizTitle}>Quiz completed</Text>
+                <Text style={styles.quizTitle}>A few more questions</Text>
                 <Text style={styles.quizSubtitle}>
-                  You've already completed the personality quiz. We're using
-                  your answers to find great matches.
-                </Text>
-                <TouchableOpacity
-                  activeOpacity={0.85}
-                  style={styles.letsStartBtn}
-                  onPress={() => navigation?.navigate('MessageScreen')}
-                >
-                  <LinearGradient
-                    colors={['#255A3B', '#3DA8A1']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.letsStartGradient}
-                  >
-                    <Text style={styles.letsStartText}>Go to Messages</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
-            ) : tieBreakerData ? (
-              <View style={styles.quizCard}>
-                <Text style={styles.quizTitle}>This or That</Text>
-                <Text style={styles.quizSubtitle}>
-                  Your answers help us match you with people who truly vibe
-                  with your personality.
+                  {chatProgress.total > 0
+                    ? `Question ${currentChatQuestionIndex + 1} of ${chatProgress.total}`
+                    : 'Your answers help us match you better.'}
                 </Text>
                 <View style={styles.divider} />
-                <Text style={styles.question}>{tieBreakerData.question}</Text>
-                {(tieBreakerData.options || []).map(opt => {
-                  const isSelected = selectedTrait === opt;
-                  return (
-                    <TouchableOpacity
-                      key={opt}
-                      activeOpacity={0.85}
-                      onPress={() => setSelectedTrait(opt)}
-                      style={[
-                        styles.optionRow,
-                        isSelected && styles.optionRowSelected,
-                      ]}
-                    >
-                      {isSelected ? (
-                        <LinearGradient
-                          colors={['#255A3B', '#3DA8A1']}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 0 }}
-                          style={styles.optionGradient}
-                        >
-                          <Text
-                            style={[
-                              styles.optionText,
-                              styles.optionTextSelected,
-                            ]}
-                          >
-                            {opt}
-                          </Text>
-                        </LinearGradient>
-                      ) : (
-                        <View style={styles.optionPlain}>
-                          <Text style={styles.optionText}>{opt}</Text>
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  );
-                })}
+                <Text style={styles.question}>
+                  {chatQuestions[currentChatQuestionIndex]?.question_text ?? ''}
+                </Text>
                 <View style={styles.cardFooterRow}>
                   <View style={styles.footerIconsRow}>
                     <Image
@@ -510,43 +547,63 @@ export default function ChatScreen({ navigation }) {
                       style={{ width: 20, height: 20, resizeMode: 'contain' }}
                     />
                   </View>
-                  <TouchableOpacity
-                    activeOpacity={0.85}
-                    style={styles.letsStartBtn}
-                    onPress={handleSubmitThisOrThat}
-                    disabled={!selectedTrait || submitOverlayVisible}
-                  >
-                    <LinearGradient
-                      colors={['#255A3B', '#3DA8A1']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={[
-                        styles.letsStartGradient,
-                        (!selectedTrait || submitOverlayVisible) &&
-                        styles.letsStartGradientDisabled,
-                      ]}
-                    >
-                      <Text style={styles.letsStartText}>Submit</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
                 </View>
               </View>
-            ) : currentQuestionIndex === -1 ? (
-              <View style={styles.quizCard}>
-                <Text style={styles.quizTitle}>Personality Quiz</Text>
-                <Text style={styles.quizSubtitle}>
-                  Your answers help us match you with people who truly vibe
-                  with your personality.
-                </Text>
-                {loadingQuestions ? (
-                  <View style={styles.loadingWrap}>
-                    <ActivityIndicator size="small" color="#3DA8A1" />
+            </>
+          ) : showQuizCard ? (
+            <>
+              {quizConversationList.map(item =>
+                item.type === 'bot' ? (
+                  <View key={item.id} style={styles.botBubbleWrapper}>
+                    <View style={styles.botBubble}>
+                      <Text style={styles.botText}>{item.text}</Text>
+                      <View style={styles.botRowIcons}>
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                          <Image
+                            source={require('../../../Assets/IMAGES/m2.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                          <Image
+                            source={require('../../../Assets/IMAGES/m5.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                          <Image
+                            source={require('../../../Assets/IMAGES/m6.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                        </View>
+                        <View>
+                          <Image
+                            source={require('../../../Assets/IMAGES/m1.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                        </View>
+                      </View>
+                    </View>
                   </View>
                 ) : (
+                  <View key={item.id} style={styles.userBubbleWrapper}>
+                    <View style={styles.userBubble}>
+                      <Text style={styles.userText}>{item.text}</Text>
+                    </View>
+                    <Image
+                      source={{ uri: 'https://picsum.photos/200/200?random=1' }}
+                      style={styles.avatar}
+                    />
+                  </View>
+                )
+              )}
+              {isQuizCompleted && isChatIntakeCompleted ? (
+                <View style={styles.quizCard}>
+                  <Text style={styles.quizTitle}>Quiz completed</Text>
+                  <Text style={styles.quizSubtitle}>
+                    You've already completed the personality quiz. We're using
+                    your answers to find great matches.
+                  </Text>
                   <TouchableOpacity
                     activeOpacity={0.85}
                     style={styles.letsStartBtn}
-                    onPress={handleLetsStart}
+                    onPress={() => navigation?.navigate('MessageScreen')}
                   >
                     <LinearGradient
                       colors={['#255A3B', '#3DA8A1']}
@@ -554,106 +611,75 @@ export default function ChatScreen({ navigation }) {
                       end={{ x: 1, y: 0 }}
                       style={styles.letsStartGradient}
                     >
-                      <Text style={styles.letsStartText}>Let's Start</Text>
+                      <Text style={styles.letsStartText}>Go to Messages</Text>
                     </LinearGradient>
                   </TouchableOpacity>
-                )}
-              </View>
-            ) : currentQuestionIndex >= 0 ? (
-              <View style={styles.quizCard}>
-                <Text style={styles.quizTitle}>Personality Quiz</Text>
-                <Text style={styles.quizSubtitle}>
-                  Your answers help us match you with people who truly vibe with
-                  your personality.
-                </Text>
-
-                {!questions || loadingQuestions ? (
-                  <View style={styles.loadingWrap}>
-                    <ActivityIndicator size="small" color="#3DA8A1" />
-                  </View>
-                ) : (
-                  <>
-                <View style={styles.divider} />
-
-                <Text style={styles.question}>
-                  {questions[currentQuestionIndex]?.question_text ?? ''}
-                </Text>
-
-                {(questions[currentQuestionIndex]?.options || []).map(opt => {
-                  const isSelected = selectedOption === opt.value;
-                  return (
-                    <TouchableOpacity
-                      key={opt.value}
-                      activeOpacity={0.85}
-                      onPress={() => {
-                        if (questions && questions[currentQuestionIndex]) {
-                          handleSelectOption(questions[currentQuestionIndex].id, opt.value);
-                        }
-                      }}
-                      style={[
-                        styles.optionRow,
-                        isSelected && styles.optionRowSelected,
-                      ]}
-                    >
-                      {isSelected ? (
-                        <LinearGradient
-                          colors={['#255A3B', '#3DA8A1']}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 0 }}
-                          style={styles.optionGradient}
-                        >
-                          <Text
-                            style={[styles.optionText, styles.optionTextSelected]}
-                          >
-                            {opt.label}
-                          </Text>
-                        </LinearGradient>
-                      ) : (
-                        <View style={styles.optionPlain}>
-                          <Text style={styles.optionText}>{opt.label}</Text>
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  );
-                })}
-
-                <View style={styles.cardFooterRow}>
-                  <View style={styles.footerIconsRow}>
-                    <Image
-                      source={require('../../../Assets/IMAGES/m2.png')}
-                      style={{ width: 20, height: 20, resizeMode: 'contain' }}
-                    />
-                    <Image
-                      source={require('../../../Assets/IMAGES/m5.png')}
-                      style={{ width: 20, height: 20, resizeMode: 'contain' }}
-                    />
-                    <Image
-                      source={require('../../../Assets/IMAGES/m6.png')}
-                      style={{ width: 20, height: 20, resizeMode: 'contain' }}
-                    />
-                  </View>
-
-                  {currentQuestionIndex < 9 ? (
-                    <TouchableOpacity
-                      activeOpacity={0.85}
-                      style={styles.letsStartBtn}
-                      onPress={handleNext}
-                    >
-                      <LinearGradient
-                        colors={['#255A3B', '#3DA8A1']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.letsStartGradient}
+                </View>
+              ) : tieBreakerData ? (
+                <View style={styles.quizCard}>
+                  <Text style={styles.quizTitle}>This or That</Text>
+                  <Text style={styles.quizSubtitle}>
+                    Your answers help us match you with people who truly vibe
+                    with your personality.
+                  </Text>
+                  <View style={styles.divider} />
+                  <Text style={styles.question}>{tieBreakerData.question}</Text>
+                  {(tieBreakerData.options || []).map(opt => {
+                    const isSelected = selectedTrait === opt;
+                    return (
+                      <TouchableOpacity
+                        key={opt}
+                        activeOpacity={0.85}
+                        onPress={() => setSelectedTrait(opt)}
+                        style={[
+                          styles.optionRow,
+                          isSelected && styles.optionRowSelected,
+                        ]}
                       >
-                        <Text style={styles.letsStartText}>Next</Text>
-                      </LinearGradient>
-                    </TouchableOpacity>
-                  ) : (
+                        {isSelected ? (
+                          <LinearGradient
+                            colors={['#255A3B', '#3DA8A1']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.optionGradient}
+                          >
+                            <Text
+                              style={[
+                                styles.optionText,
+                                styles.optionTextSelected,
+                              ]}
+                            >
+                              {opt}
+                            </Text>
+                          </LinearGradient>
+                        ) : (
+                          <View style={styles.optionPlain}>
+                            <Text style={styles.optionText}>{opt}</Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                  <View style={styles.cardFooterRow}>
+                    <View style={styles.footerIconsRow}>
+                      <Image
+                        source={require('../../../Assets/IMAGES/m2.png')}
+                        style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                      />
+                      <Image
+                        source={require('../../../Assets/IMAGES/m5.png')}
+                        style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                      />
+                      <Image
+                        source={require('../../../Assets/IMAGES/m6.png')}
+                        style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                      />
+                    </View>
                     <TouchableOpacity
                       activeOpacity={0.85}
                       style={styles.letsStartBtn}
-                      onPress={handleSubmitQuiz}
-                      disabled={submittingQuiz || selectedOption == null}
+                      onPress={handleSubmitThisOrThat}
+                      disabled={!selectedTrait || submitOverlayVisible}
                     >
                       <LinearGradient
                         colors={['#255A3B', '#3DA8A1']}
@@ -661,23 +687,163 @@ export default function ChatScreen({ navigation }) {
                         end={{ x: 1, y: 0 }}
                         style={[
                           styles.letsStartGradient,
-                          (submittingQuiz || selectedOption == null) &&
+                          (!selectedTrait || submitOverlayVisible) &&
                           styles.letsStartGradientDisabled,
                         ]}
                       >
-                        {submittingQuiz ? (
-                          <ActivityIndicator size="small" color="#fff" />
-                        ) : (
-                          <Text style={styles.letsStartText}>Submit</Text>
-                        )}
+                        <Text style={styles.letsStartText}>Submit</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : currentQuestionIndex === -1 ? (
+                <View style={styles.quizCard}>
+                  <Text style={styles.quizTitle}>Personality Quiz</Text>
+                  <Text style={styles.quizSubtitle}>
+                    Your answers help us match you with people who truly vibe
+                    with your personality.
+                  </Text>
+                  {loadingQuestions ? (
+                    <View style={styles.loadingWrap}>
+                      <ActivityIndicator size="small" color="#3DA8A1" />
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      activeOpacity={0.85}
+                      style={styles.letsStartBtn}
+                      onPress={handleLetsStart}
+                    >
+                      <LinearGradient
+                        colors={['#255A3B', '#3DA8A1']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.letsStartGradient}
+                      >
+                        <Text style={styles.letsStartText}>Let's Start</Text>
                       </LinearGradient>
                     </TouchableOpacity>
                   )}
                 </View>
-                  </>
-                )}
-              </View>
-            ) : null
+              ) : currentQuestionIndex >= 0 ? (
+                <View style={styles.quizCard}>
+                  <Text style={styles.quizTitle}>Personality Quiz</Text>
+                  <Text style={styles.quizSubtitle}>
+                    Your answers help us match you with people who truly vibe with
+                    your personality.
+                  </Text>
+
+                  {!questions || loadingQuestions ? (
+                    <View style={styles.loadingWrap}>
+                      <ActivityIndicator size="small" color="#3DA8A1" />
+                    </View>
+                  ) : (
+                    <>
+                      <View style={styles.divider} />
+
+                      <Text style={styles.question}>
+                        {questions[currentQuestionIndex]?.question_text ?? ''}
+                      </Text>
+
+                      {(questions[currentQuestionIndex]?.options || []).map(opt => {
+                        const isSelected = selectedOption === opt.value;
+                        return (
+                          <TouchableOpacity
+                            key={opt.value}
+                            activeOpacity={0.85}
+                            onPress={() => {
+                              if (questions && questions[currentQuestionIndex]) {
+                                handleSelectOption(questions[currentQuestionIndex].id, opt.value);
+                              }
+                            }}
+                            style={[
+                              styles.optionRow,
+                              isSelected && styles.optionRowSelected,
+                            ]}
+                          >
+                            {isSelected ? (
+                              <LinearGradient
+                                colors={['#255A3B', '#3DA8A1']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                                style={styles.optionGradient}
+                              >
+                                <Text
+                                  style={[styles.optionText, styles.optionTextSelected]}
+                                >
+                                  {opt.label}
+                                </Text>
+                              </LinearGradient>
+                            ) : (
+                              <View style={styles.optionPlain}>
+                                <Text style={styles.optionText}>{opt.label}</Text>
+                              </View>
+                            )}
+                          </TouchableOpacity>
+                        );
+                      })}
+
+                      <View style={styles.cardFooterRow}>
+                        <View style={styles.footerIconsRow}>
+                          <Image
+                            source={require('../../../Assets/IMAGES/m2.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                          <Image
+                            source={require('../../../Assets/IMAGES/m5.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                          <Image
+                            source={require('../../../Assets/IMAGES/m6.png')}
+                            style={{ width: 20, height: 20, resizeMode: 'contain' }}
+                          />
+                        </View>
+
+                        {currentQuestionIndex < 9 ? (
+                          <TouchableOpacity
+                            activeOpacity={0.85}
+                            style={styles.letsStartBtn}
+                            onPress={handleNext}
+                          >
+                            <LinearGradient
+                              colors={['#255A3B', '#3DA8A1']}
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 1, y: 0 }}
+                              style={styles.letsStartGradient}
+                            >
+                              <Text style={styles.letsStartText}>Next</Text>
+                            </LinearGradient>
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity
+                            activeOpacity={0.85}
+                            style={styles.letsStartBtn}
+                            onPress={handleSubmitQuiz}
+                            disabled={submittingQuiz || selectedOption == null}
+                          >
+                            <LinearGradient
+                              colors={['#255A3B', '#3DA8A1']}
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 1, y: 0 }}
+                              style={[
+                                styles.letsStartGradient,
+                                (submittingQuiz || selectedOption == null) &&
+                                styles.letsStartGradientDisabled,
+                              ]}
+                            >
+                              {submittingQuiz ? (
+                                <ActivityIndicator size="small" color="#fff" />
+                              ) : (
+                                <Text style={styles.letsStartText}>Submit</Text>
+                              )}
+                            </LinearGradient>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    </>
+                  )}
+                </View>
+              ) : null}
+            </>
           ) : null}
           {/* Spacer so input bar doesn't overlay content on small screens */}
           <View style={{ height: 30 }} />
@@ -720,6 +886,7 @@ const styles = StyleSheet.create({
   bg: {
     flex: 1,
     backgroundColor: '#07120f',
+    paddingTop: 60,
   },
   safe: { flex: 1, justifyContent: 'space-between' },
   overlay: {
@@ -739,6 +906,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 12,
+    paddingHorizontal: 18,
+
   },
   roundBtn: {
     width: 40,
